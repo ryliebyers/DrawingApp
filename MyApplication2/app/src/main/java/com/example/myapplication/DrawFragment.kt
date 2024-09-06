@@ -36,9 +36,9 @@ class DrawFragment : Fragment() {
 
 
         // Set up the back button to pop the fragment from the back stack
-        binding.backButton.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
+//        binding.backButton.setOnClickListener {
+//            requireActivity().supportFragmentManager.popBackStack()
+//        }
 
         return binding.root
 
