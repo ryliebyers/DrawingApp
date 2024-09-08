@@ -18,6 +18,9 @@ class SplashActivity : AppCompatActivity() {
 
         // Find the LottieAnimationView and set up the animation
         val lottieAnimationView: LottieAnimationView = findViewById(R.id.lottieAnimationView)
+
+
+
         lottieAnimationView.setAnimation("splash_page.json") // The JSON file in assets
         lottieAnimationView.playAnimation()
 

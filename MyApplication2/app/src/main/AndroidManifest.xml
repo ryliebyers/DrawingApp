@@ -43,7 +43,7 @@
             android:name=".SplashActivity"
             android:exported="true"
             >
-<!--            android:theme="@style/SplashTheme" &lt;!&ndash; Optional: Apply a specific theme for the splash screen &ndash;&gt;-->
+<!--            android:theme="@style/SplashTheme"-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
