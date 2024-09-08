@@ -29,6 +29,7 @@ class DrawFragment : Fragment() {
             binding.customView.passBitmap(it)
         }
 
+
         // Handle color picker button click
         binding.btnColorPicker.setOnClickListener {
             showColorPickerDialog()
