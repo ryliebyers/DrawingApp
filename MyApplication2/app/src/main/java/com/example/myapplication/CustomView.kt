@@ -55,14 +55,18 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private var lastY = -1f
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        // Scale factor to map touch coordinates to the bitmap
+        val scaleX = bitmap?.width?.toFloat()?.div(width.toFloat()) ?: 1f
+        val scaleY = bitmap?.height?.toFloat()?.div(height.toFloat()) ?: 1f
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 lastX = event.x
                 lastY = event.y
             }
             MotionEvent.ACTION_MOVE -> {
-                val currentX = event.x
-                val currentY = event.y
+                val currentX = event.x * scaleX
+                val currentY = event.y * scaleY
                 if (lastX >= 0 && lastY >= 0) {
                     drawLine(lastX, lastY, currentX, currentY, Color.RED) // Adjust color as needed
                 }
