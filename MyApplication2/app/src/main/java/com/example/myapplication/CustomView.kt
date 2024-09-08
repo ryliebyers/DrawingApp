@@ -1,32 +1,31 @@
 package com.example.myapplication
 
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import androidx.annotation.RequiresApi
-
-
-
 
 class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     private var bitmap = Bitmap.createBitmap(800, 800, Bitmap.Config.ARGB_8888)
     private var bitmapCanvas = Canvas(bitmap)
     private val paint = Paint()
+    private var penProperties = PenProperties() // Use PenProperties to store pen state
     private val rect: Rect by lazy { Rect(0, 0, width, height) }
 
     init {
         paint.isAntiAlias = true
-        paint.strokeWidth = 10f
-        paint.style = Paint.Style.STROKE
+        updatePaint()
+    }
+
+    private fun updatePaint() {
+        paint.color = penProperties.color
+        paint.strokeWidth = penProperties.size
+        paint.style = penProperties.style
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -40,13 +39,25 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
         invalidate()  // Redraw the view with the new bitmap
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    public fun drawLine(startX: Float, startY: Float, endX: Float, endY: Float, color: Int) {
-        paint.color = Color.BLACK
-        bitmapCanvas.drawRect(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat(), paint)
-        paint.color = color
-        paint.strokeWidth = 10f // Set the stroke width for the line
-        paint.style = Paint.Style.STROKE // Use STROKE style to draw lines
+    fun setPenColor(color: Int) {
+        penProperties.color = color
+        updatePaint()
+    }
+
+    fun setPenSize(size: Float) {
+        penProperties.size = size
+        updatePaint()
+    }
+
+    fun togglePenStyle() {
+        penProperties.toggleStyle()
+        updatePaint()
+    }
+
+    private fun drawLine(startX: Float, startY: Float, endX: Float, endY: Float) {
+        paint.color = penProperties.color
+        paint.strokeWidth = penProperties.size
+        paint.style = penProperties.style
         bitmapCanvas.drawLine(startX, startY, endX, endY, paint)
         invalidate()
     }
@@ -55,20 +66,23 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private var lastY = -1f
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+
         // Scale factor to map touch coordinates to the bitmap
         val scaleX = bitmap?.width?.toFloat()?.div(width.toFloat()) ?: 1f
         val scaleY = bitmap?.height?.toFloat()?.div(height.toFloat()) ?: 1f
 
+
         when (event.action) {
+
             MotionEvent.ACTION_DOWN -> {
-                lastX = event.x
-                lastY = event.y
+                lastX = event.x * scaleX
+                lastY = event.y * scaleY
             }
             MotionEvent.ACTION_MOVE -> {
                 val currentX = event.x * scaleX
                 val currentY = event.y * scaleY
                 if (lastX >= 0 && lastY >= 0) {
-                    drawLine(lastX, lastY, currentX, currentY, Color.RED) // Adjust color as needed
+                    drawLine(lastX, lastY, currentX, currentY) // Draw line with current pen properties
                 }
                 lastX = currentX
                 lastY = currentY
@@ -81,6 +95,3 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
         return true
     }
 }
-
-
-

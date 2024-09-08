@@ -1,23 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DrawFragment">
+    android:padding="10dp">
 
+    <!-- Custom Drawing View -->
     <com.example.myapplication.CustomView
         android:id="@+id/customView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="10dp" />
 
-<!--    <Button-->
-<!--        android:id="@+id/backButton"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Back"-->
-<!--        android:layout_gravity="bottom|end" />-->
+    <!-- UI to modify pen properties -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="10dp">
 
-</FrameLayout>
+        <!-- Button to select color-->
+        <Button
+            android:id="@+id/btnColorPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick Color" />
+
+        <!-- Button to toggle pen style -->
+        <Button
+            android:id="@+id/btnToggleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Toggle Style"
+            android:layout_marginStart="20dp" />
+
+        <!-- Button to change pen size -->
+        <Button
+            android:id="@+id/btnSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Size"
+            android:layout_marginStart="20dp" />
+    </LinearLayout>
+
+    <!-- SeekBar to change pen size (initially hidden) -->
+    <SeekBar
+        android:id="@+id/seekBarPenSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="50"
+        android:progress="10"
+        android:visibility="gone" />  <!-- Hide SeekBar initially -->
+
+</LinearLayout>
