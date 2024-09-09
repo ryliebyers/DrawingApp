@@ -1,16 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center"
-    tools:context="com.example.myapplication.ClickFragment">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <!-- Data binding (if needed) -->
+    </data>
 
-    <Button
-        android:id="@+id/clickMe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Click me" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center">
 
-</FrameLayout>
+        <!-- Button to create new drawing -->
+        <Button
+            android:id="@+id/createNewDrawing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create New Drawing"
+            android:layout_marginBottom="16dp"
+            android:textColor="@android:color/white"
+            android:elevation="4dp"/>
+
+        <!-- Button to edit existing drawing -->
+        <Button
+            android:id="@+id/editExistingDrawing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit Existing Drawing"
+            android:layout_marginBottom="16dp"
+            android:textColor="@android:color/white"
+            android:elevation="4dp"/>
+
+        <!-- Recent drawings section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recent Drawings:"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Placeholder for recent drawing 1 (with preview and name) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@android:color/white"
+                android:padding="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:elevation="4dp"
+
+                android:layout_gravity="center"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:id="@+id/recentDrawing1Preview"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerCrop"
+                    android:elevation="4dp"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/recentDrawing1Name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:text="Drawing 1"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+
+            <!-- Placeholder for recent drawing 2 (with preview and name) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@android:color/white"
+                android:padding="8dp"
+                android:layout_marginBottom="8dp"
+                android:elevation="4dp"
+
+                android:layout_gravity="center"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:id="@+id/recentDrawing2Preview"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerCrop"
+                    android:elevation="4dp"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/recentDrawing2Name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:text="Drawing 2"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+
+            <!-- Placeholder for recent drawing 3 (with preview and name) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@android:color/white"
+                android:padding="8dp"
+                android:elevation="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="center"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:id="@+id/recentDrawing3Preview"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerCrop"
+                    android:elevation="4dp"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/recentDrawing3Name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:text="Drawing 3"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

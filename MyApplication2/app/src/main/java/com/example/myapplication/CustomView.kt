@@ -16,6 +16,7 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private val paint = Paint()
     private var penProperties = PenProperties() // Use PenProperties to store pen state
     private val rect: Rect by lazy { Rect(0, 0, width, height) }
+    private val drawings: LinkedHashMap<String, Bitmap> = LinkedHashMap()
 
     init {
         paint.isAntiAlias = true
@@ -36,7 +37,8 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
     fun passBitmap(bitmap: Bitmap) {
         this.bitmap = bitmap
         this.bitmapCanvas = Canvas(bitmap)
-        invalidate()  // Redraw the view with the new bitmap
+        // re-draw the view with the new bitmap
+        invalidate()
     }
 
     fun setPenColor(color: Int) {
@@ -53,6 +55,11 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
         penProperties.toggleStyle()
         updatePaint()
     }
+
+    fun getBitmap(): Bitmap {
+        return bitmap
+    }
+
 
     private fun drawLine(startX: Float, startY: Float, endX: Float, endY: Float) {
         paint.color = penProperties.color

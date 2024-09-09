@@ -13,7 +13,7 @@
         android:layout_weight="1"
         android:layout_marginBottom="10dp" />
 
-    <!-- UI to modify pen properties -->
+    <!-- First row of buttons -->
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -24,25 +24,47 @@
         <!-- Button to select color-->
         <Button
             android:id="@+id/btnColorPicker"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Pick Color" />
 
         <!-- Button to toggle pen style -->
         <Button
-            android:id="@+id/btnToggleStyle"
-            android:layout_width="wrap_content"
+            android:id="@+id/btnClearDrawing"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Toggle Style"
-            android:layout_marginStart="20dp" />
+            android:layout_weight="1"
+            android:text="Clear Drawing"
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
+
+    <!-- Second row of buttons -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="10dp">
 
         <!-- Button to change pen size -->
         <Button
             android:id="@+id/btnSize"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Change Size"
-            android:layout_marginStart="20dp" />
+            android:layout_marginStart="10dp" />
+
+        <!-- Save Drawing Button -->
+        <Button
+            android:id="@+id/btnSaveDrawing"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save Drawing"
+            android:layout_marginStart="10dp"
+            />
     </LinearLayout>
 
     <!-- SeekBar to change pen size (initially hidden) -->
