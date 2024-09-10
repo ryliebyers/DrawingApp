@@ -7,8 +7,6 @@
     android:layout_gravity="center"
     tools:context="com.example.myapplication.MainActivity" >
 
-
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
         android:name="com.example.myapplication.ClickFragment"

@@ -31,6 +31,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onBackPressed() {
+        // Check if the DrawFragment is currently active
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView)
+
+        if (fragment is DrawFragment) {
+            // Trigger the save as no-name drawing function in the fragment
+            fragment.saveNoNameDrawing()
+        } else {
+            super.onBackPressed() // Call the default back button behavior
+        }
+    }
+
+
 }
 
 

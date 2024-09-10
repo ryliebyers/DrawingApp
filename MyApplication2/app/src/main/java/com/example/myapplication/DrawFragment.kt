@@ -116,70 +116,65 @@ class DrawFragment : Fragment() {
     }
 
 
-    // This function handles saving the current drawing, either by overwriting an existing drawing or creating a new one with a user-specified name.
-    private fun saveCurrentDrawing() {
-
-        // Retrieve the name of the current drawing from the ViewModel (if it's an existing drawing).
+    // Function to save current drawing with an option to bypass the name prompt
+    private fun saveCurrentDrawing(showNamePrompt: Boolean = true) {
         val existingDrawingName = viewModel.currentDrawingName
 
-        // Check if the drawing has already been saved before (i.e., it has a name).
         if (existingDrawingName != null) {
-            // Get the current drawing (as a Bitmap) from the custom drawing view.
+            // If the drawing already has a name, just save it without showing any pop-up
             val currentBitmap = binding.customView.getBitmap()
-
-            // Save the current drawing to internal storage using the existing drawing name.
             val filePath = saveDrawingToInternalStorage(requireContext(), existingDrawingName, currentBitmap)
 
-            // If the file was saved successfully, show a success message.
             if (filePath != null) {
                 Toast.makeText(requireContext(), "Changes saved to $existingDrawingName!", Toast.LENGTH_SHORT).show()
             } else {
-                // If the file couldn't be saved, show an error message.
                 Toast.makeText(requireContext(), "Failed to save drawing.", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            // If it's a new drawing without a name, show a dialog to prompt the user for a name.
-
+        } else if (showNamePrompt) {
+            // Show the name prompt if needed
             val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Enter Drawing Name") // Set the dialog title.
+            builder.setTitle("Enter Drawing Name")
 
-            // Create an EditText field for the user to input a drawing name.
             val input = EditText(requireContext())
-            builder.setView(input) // Set the input field as part of the dialog's layout.
+            builder.setView(input)
 
-            // Set up the positive button ("OK") to save the drawing once the user enters a name.
             builder.setPositiveButton("OK") { dialog, _ ->
-                val drawingName = input.text.toString() // Retrieve the inputted drawing name.
+                val drawingName = input.text.toString()
                 if (drawingName.isNotBlank()) {
-                    // Get the current drawing (as a Bitmap) from the custom drawing view.
                     val currentBitmap = binding.customView.getBitmap()
-
-                    // Save the current drawing to internal storage using the entered drawing name.
                     val filePath = saveDrawingToInternalStorage(requireContext(), drawingName, currentBitmap)
 
-                    // If the drawing was saved successfully, store the drawing name in the ViewModel and show a success message.
                     if (filePath != null) {
                         viewModel.currentDrawingName = drawingName
                         Toast.makeText(requireContext(), "Drawing saved as $drawingName!", Toast.LENGTH_SHORT).show()
                     } else {
-                        // If the drawing couldn't be saved, show an error message.
                         Toast.makeText(requireContext(), "Failed to save drawing.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    // If the user entered an invalid name (blank), show an error message.
                     Toast.makeText(requireContext(), "Please enter a valid name", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            // Set up the negative button ("Cancel") to dismiss the dialog without saving.
             builder.setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel() // Close the dialog if the user cancels.
+                dialog.cancel()
             }
 
-            // Show the dialog to the user.
             builder.show()
+        } else {
+            // Automatically save with "No-Name" if no name was previously given
+            val noName = "No-Name"
+            val currentBitmap = binding.customView.getBitmap()
+            val filePath = saveDrawingToInternalStorage(requireContext(), noName, currentBitmap)
+
+            if (filePath != null) {
+                viewModel.currentDrawingName = noName
+                Toast.makeText(requireContext(), "Drawing saved as $noName!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Failed to save drawing.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
 
 
 
@@ -237,6 +232,17 @@ class DrawFragment : Fragment() {
         // Also update the ViewModel to keep it consistent
         viewModel.setBitmap(blankBitmap)
     }
+
+
+
+    fun saveNoNameDrawing() {
+        // Save the current drawing with "No-Name" directly, without the prompt
+        saveCurrentDrawing(showNamePrompt = false)
+
+        // Call the activity's default back behavior to go back
+        requireActivity().onBackPressedDispatcher.onBackPressed()
+    }
+
 
 }
 
