@@ -1,25 +1,25 @@
 package com.example.myapplication
 
+//needs this for setcontentview
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.myapplication.databinding.FragmentDrawBinding
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
-import java.io.IOException
-import android.content.Context
-import android.graphics.Bitmap
 import java.io.File
 import java.io.FileOutputStream
-
+import java.io.IOException
 
 class DrawFragment : Fragment() {
 
@@ -27,11 +27,17 @@ class DrawFragment : Fragment() {
     private var isSeekBarVisible = false
     private val viewModel: SimpleViewModel by activityViewModels()
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
+
     ): View {
+
+
         binding = FragmentDrawBinding.inflate(inflater)
+
 
         //val viewModel: SimpleViewModel by activityViewModels()
         viewModel.bitmap.observe(viewLifecycleOwner) {
