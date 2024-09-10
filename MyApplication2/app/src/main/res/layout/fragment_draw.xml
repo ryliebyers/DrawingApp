@@ -21,31 +21,34 @@
         android:gravity="center"
         android:layout_marginBottom="10dp">
 
+        <!-- Button to clear drawing -->
+        <Button
+            android:id="@+id/btnClearDrawing"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Clear"
+            android:layout_marginStart="10dp" />
+
         <!-- Button to select color-->
         <Button
             android:id="@+id/btnColorPicker"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Pick Color" />
+            android:text="Color"
+            android:layout_marginStart="10dp"/>
 
-        <!-- Button to toggle pen style -->
-        <Button
-            android:id="@+id/btnClearDrawing"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Clear Drawing"
-            android:layout_marginStart="10dp" />
-    </LinearLayout>
 
-    <!-- Second row of buttons -->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginBottom="10dp">
+<!--    </LinearLayout>-->
+
+<!--    &lt;!&ndash; Second row of buttons &ndash;&gt;-->
+<!--    <LinearLayout-->
+<!--        android:orientation="horizontal"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:gravity="center"-->
+<!--        android:layout_marginBottom="10dp">-->
 
         <!-- Button to change pen size -->
         <Button
@@ -53,7 +56,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Change Size"
+            android:text="Size"
             android:layout_marginStart="10dp" />
 
         <!-- Save Drawing Button -->
@@ -62,7 +65,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Save Drawing"
+            android:text="Save"
             android:layout_marginStart="10dp"
             />
     </LinearLayout>
