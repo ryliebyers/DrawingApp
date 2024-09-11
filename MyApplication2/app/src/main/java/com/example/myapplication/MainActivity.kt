@@ -37,12 +37,18 @@ class MainActivity : AppCompatActivity() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView)
 
         if (fragment is DrawFragment) {
-            // Trigger the save as no-name drawing function in the fragment
-            fragment.saveNoNameDrawing()
+            // Only show the exit confirmation dialog if the drawing has not been saved
+            if (!fragment.isDrawingSaved()) {
+                fragment.showExitConfirmationDialog()
+            } else {
+                super.onBackPressed() // Exit if the drawing has already been saved
+            }
         } else {
             super.onBackPressed() // Call the default back button behavior
         }
     }
+
+
 
 
 }

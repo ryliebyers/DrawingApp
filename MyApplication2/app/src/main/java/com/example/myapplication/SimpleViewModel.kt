@@ -16,6 +16,7 @@ class SimpleViewModel : ViewModel() {
     var currentDrawingName: String? = null
     private val _bitmap: MutableLiveData<Bitmap> = MutableLiveData()
     val bitmap: LiveData<Bitmap> = _bitmap
+    var isDrawingSaved: Boolean = false // New flag to track saved status
 
     // Store file paths instead of bitmaps
     private val drawings: MutableMap<String, String> = mutableMapOf()
@@ -76,8 +77,8 @@ class SimpleViewModel : ViewModel() {
 
 
 
-    // Set the current bitmap for drawing
     fun setBitmap(newBitmap: Bitmap) {
         _bitmap.value = newBitmap
+        isDrawingSaved = false // Set to false when new bitmap is set
     }
 }
