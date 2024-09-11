@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -28,7 +29,9 @@ class MainActivity : AppCompatActivity() {
                     .replace(R.id.fragmentContainerView, drawFragment, "draw_fragment")
                     .addToBackStack(null)
                     .commit()
+
             }
+
         }
     }
 
@@ -51,6 +54,9 @@ class MainActivity : AppCompatActivity() {
 
 
 
-}
+
+
+
+} //end of main
 
 

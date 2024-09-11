@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
@@ -12,14 +13,15 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.databinding.FragmentDrawBinding
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import androidx.activity.OnBackPressedCallback
 
 
 class DrawFragment : Fragment() {
@@ -27,6 +29,7 @@ class DrawFragment : Fragment() {
     private lateinit var binding: FragmentDrawBinding
     private var isSeekBarVisible = false
     private val viewModel: SimpleViewModel by activityViewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -208,4 +211,35 @@ class DrawFragment : Fragment() {
         builder.show()
     }
 
-}
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        viewModel.currentLayoutId?.let { layoutId ->
+            updateUILayout(layoutId)
+        }
+    }
+
+    fun updateUILayout(layoutId: Int) {
+        viewModel.currentLayoutId = layoutId
+        view?.let {
+            // Remove the old view and inflate the new layout
+            (it as ViewGroup).removeAllViews()
+            LayoutInflater.from(context).inflate(layoutId, it, true)
+        }
+    }
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        when (newConfig.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                updateUILayout(R.layout.fragment_draw)            }
+            Configuration.ORIENTATION_PORTRAIT -> {
+                updateUILayout(R.layout.fragment_draw)            }
+            }
+
+        }
+
+
+} //end of fragment class
+
+
+
