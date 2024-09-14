@@ -22,14 +22,23 @@ import java.io.File
 
 class ClickFragment : Fragment() {
 
+    // This creates a ViewModel instance that is shared between activities and fragments.
+// The 'by activityViewModels()' delegate will create a ViewModel if one doesn't already exist and store it at the activity level.
     private val viewModel: SimpleViewModel by activityViewModels()
+
+    // This variable holds a lambda function (buttonFunction) that can be set later.
+// It will be called when specific user actions require a fragment transaction or other logic.
     private var buttonFunction: () -> Unit = {}
 
+    // This function allows setting the buttonFunction lambda externally.
+// It can be used to customize what action happens when a button is clicked, such as navigating to a different fragment.
     fun setButtonFunction(newFunc: () -> Unit) {
         buttonFunction = newFunc
     }
 
+
     @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -140,12 +149,7 @@ class ClickFragment : Fragment() {
             Toast.makeText(context, "No drawings available to edit", Toast.LENGTH_SHORT).show()
         }
     }
-
-
-
-
-
-
+    
     // This function updates the UI to display the most recent drawings in the respective ImageViews and TextViews.
     private fun displayRecentDrawings(binding: FragmentClickBinding) {
 

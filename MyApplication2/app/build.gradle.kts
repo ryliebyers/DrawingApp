@@ -31,6 +31,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -58,6 +59,8 @@ dependencies {
 
     // Lottie animations
     implementation("com.airbnb.android:lottie:6.3.0")
+    testImplementation ("org.robolectric:robolectric:4.7.3")
+
 
     // Unit Testing
     testImplementation("junit:junit:4.13.2")

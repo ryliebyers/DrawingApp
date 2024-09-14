@@ -60,7 +60,6 @@ class SimpleViewModel : ViewModel() {
                 }
             }
         }
-
         return savedDrawings
     }
 
