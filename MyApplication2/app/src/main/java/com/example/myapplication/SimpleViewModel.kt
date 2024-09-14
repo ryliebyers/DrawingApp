@@ -11,7 +11,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 class SimpleViewModel : ViewModel() {
-
+    var currentLayoutId: Int? = null
     // Holds the currently active drawing's name (for saving and editing)
     var currentDrawingName: String? = null
     private val _bitmap: MutableLiveData<Bitmap> = MutableLiveData()

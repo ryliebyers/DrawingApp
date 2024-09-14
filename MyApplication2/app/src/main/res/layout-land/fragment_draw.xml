@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
@@ -10,75 +10,75 @@
     <!-- Custom Drawing View -->
     <com.example.myapplication.CustomView
         android:id="@+id/customView"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginEnd="10dp" />
+        android:layout_marginBottom="10dp" />
 
-    <!-- Buttons Container -->
+    <!-- First row of buttons -->
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="10dp">
 
-        <!-- First row of buttons -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
+        <!-- Button to clear drawing -->
+        <Button
+            android:id="@+id/btnClearDrawing"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
+            android:layout_weight="1"
+            android:text="Clear"
+            android:layout_marginStart="10dp" />
 
-            <!-- Button to clear drawing -->
-            <Button
-                android:id="@+id/btnClearDrawing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Clear"
-                android:layout_marginStart="10dp" />
-
-            <!-- Button to select color-->
-            <Button
-                android:id="@+id/btnColorPicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Color"
-                android:layout_marginStart="10dp"/>
-        </LinearLayout>
-
-        <!-- Second row of buttons -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
+        <!-- Button to select color-->
+        <Button
+            android:id="@+id/btnColorPicker"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center">
+            android:layout_weight="1"
+            android:text="Color"
+            android:layout_marginStart="10dp"/>
 
-            <!-- Button to change pen size -->
-            <Button
-                android:id="@+id/btnSize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Size"
-                android:layout_marginStart="10dp" />
 
-            <!-- Save Drawing Button -->
-            <Button
-                android:id="@+id/btnSaveDrawing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Save"
-                android:layout_marginStart="10dp"/>
-        </LinearLayout>
+        <!--    </LinearLayout>-->
 
-        <!-- SeekBar to change pen size (initially hidden) -->
-        <SeekBar
-            android:id="@+id/seekBarPenSize"
-            android:layout_width="wrap_content"
+        <!--    &lt;!&ndash; Second row of buttons &ndash;&gt;-->
+        <!--    <LinearLayout-->
+        <!--        android:orientation="horizontal"-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="wrap_content"-->
+        <!--        android:gravity="center"-->
+        <!--        android:layout_marginBottom="10dp">-->
+
+        <!-- Button to change pen size -->
+        <Button
+            android:id="@+id/btnSize"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:max="50"
-            android:progress="10"
-            android:visibility="gone" />  <!-- Hide SeekBar initially -->
+            android:layout_weight="1"
+            android:text="Size"
+            android:layout_marginStart="10dp" />
 
+        <!-- Save Drawing Button -->
+        <Button
+            android:id="@+id/btnSaveDrawing"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save"
+            android:layout_marginStart="10dp"
+            />
     </LinearLayout>
+
+    <!-- SeekBar to change pen size (initially hidden) -->
+    <SeekBar
+        android:id="@+id/seekBarPenSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="50"
+        android:progress="10"
+        android:visibility="gone" />  <!-- Hide SeekBar initially -->
 
 </LinearLayout>
