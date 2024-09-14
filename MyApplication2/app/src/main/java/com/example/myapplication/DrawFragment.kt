@@ -221,7 +221,7 @@ class DrawFragment : Fragment() {
     fun updateUILayout(layoutId: Int) {
         viewModel.currentLayoutId = layoutId
         view?.let {
-            // Remove the old view and inflate the new layout
+//            // Remove the old view and inflate the new layout
             (it as ViewGroup).removeAllViews()
             LayoutInflater.from(context).inflate(layoutId, it, true)
         }
