@@ -51,10 +51,15 @@ class DrawFragment : Fragment() {
             showColorPickerDialog()
         }
 
+        binding.btnShapePicker.setOnClickListener {
+            showShapePickerDialog() // Show the dialog to select shapes
+        }
+
         // Handle Clear Button click (to clear the drawing)
         binding.btnClearDrawing.setOnClickListener {
             clearDrawing()
         }
+
 
         // Toggle the visibility of SeekBar when "Size" button is clicked
         binding.btnSize.setOnClickListener {
@@ -112,6 +117,23 @@ class DrawFragment : Fragment() {
         builder.setTitle("Pick a Color")
         builder.setAdapter(adapter) { dialog, which ->
             binding.customView.setPenColor(colorValues[which])
+        }
+
+        builder.show()
+    }
+
+    // Function to show a custom shape picker dialog
+    private fun showShapePickerDialog() {
+        val shapes = arrayOf("Line", "Rectangle", "Circle")
+        val shapeTypes = arrayOf( PenProperties.ShapeType.LINE, PenProperties.ShapeType.RECTANGLE, PenProperties.ShapeType.CIRCLE)
+
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, shapes)
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Pick a Shape")
+        builder.setAdapter(adapter) { dialog, which ->
+            // Set the selected shape in the CustomView
+            binding.customView.setShape(shapeTypes[which])
         }
 
         builder.show()
