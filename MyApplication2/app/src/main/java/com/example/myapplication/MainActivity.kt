@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 
 import com.example.myapplication.databinding.ActivityMainBinding
+import android.content.pm.ActivityInfo
 
 
 
@@ -13,6 +14,9 @@ import com.example.myapplication.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_main)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -27,13 +31,16 @@ class MainActivity : AppCompatActivity() {
                 val drawFragment = DrawFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragmentContainerView, drawFragment, "draw_fragment")
+
                     .addToBackStack(null)
+
                     .commit()
 
             }
 
         }
     }
+
 
     override fun onBackPressed() {
         // Check if the DrawFragment is currently active

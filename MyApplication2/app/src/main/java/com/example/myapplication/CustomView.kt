@@ -43,9 +43,16 @@ class CustomView(context: Context, attrs: AttributeSet) : View(context, attrs) {
         canvas.drawBitmap(bitmap, null, rect, null)
     }
 
-    fun passBitmap(bitmap: Bitmap) {
-        this.bitmap = bitmap
-        this.bitmapCanvas = Canvas(bitmap)
+//    fun passBitmap(bitmap: Bitmap) {
+//        this.bitmap = bitmap
+//        this.bitmapCanvas = Canvas(bitmap)
+//        // re-draw the view with the new bitmap
+//        invalidate()
+//    }
+
+        fun passBitmap(newBitmap: Bitmap) {
+        bitmap = newBitmap
+        bitmapCanvas = Canvas(bitmap)
         // re-draw the view with the new bitmap
         invalidate()
     }

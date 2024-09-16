@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.R
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -198,4 +199,6 @@ class ClickFragment : Fragment() {
             imageView.setImageBitmap(null)
         }
     }
+
+
 }
