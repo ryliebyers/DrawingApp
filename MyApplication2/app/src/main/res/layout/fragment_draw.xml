@@ -8,6 +8,38 @@
     android:padding="10dp"
     tools:context="com.example.myapplication.DrawFragment">
 
+    <!-- Row for Share and Import buttons -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="10dp">
+
+        <!-- Share Button -->
+        <Button
+            android:id="@+id/btnShareDrawing"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Share"
+            android:textSize="10sp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+        <!-- Import Button -->
+        <Button
+            android:id="@+id/btnImportDrawing"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Import"
+            android:textSize="10sp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+    </LinearLayout>
+
     <!-- Custom Drawing View -->
     <com.example.myapplication.CustomView
         android:id="@+id/customView"
@@ -47,7 +79,7 @@
             android:textSize="10sp"
             android:layout_marginStart="4dp"/>
 
-        <!-- Button to select color-->
+        <!-- Button to select shape-->
         <Button
             android:id="@+id/btnShapePicker"
             android:layout_width="0dp"
@@ -56,7 +88,6 @@
             android:text="Shape"
             android:textSize="9sp"
             android:layout_marginStart="4dp"/>
-
 
         <!-- Button to change pen size -->
         <Button

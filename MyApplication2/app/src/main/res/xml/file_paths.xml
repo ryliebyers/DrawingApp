@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- This will allow access to the cache directory -->
+    <cache-path
+        name="shared_images"
+        path="." />
+</paths>

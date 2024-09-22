@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import DrawFragment
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

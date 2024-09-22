@@ -1,27 +1,29 @@
-package com.example.myapplication
-
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.SeekBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
+import com.example.myapplication.PenProperties
+import com.example.myapplication.SimpleViewModel
 import com.example.myapplication.databinding.FragmentDrawBinding
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 
 class DrawFragment : Fragment() {
 
@@ -29,45 +31,63 @@ class DrawFragment : Fragment() {
     private var isSeekBarVisible = false
     private val viewModel: SimpleViewModel by activityViewModels()
 
+    // New ActivityResultLauncher for importing images
+    private val importImageLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            importImageFromUri(it)
+        }
+    }
 
     override fun onCreateView(
-
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // Ensure binding is properly initialized
+        binding = FragmentDrawBinding.inflate(inflater, container, false)
 
+        // Now you can safely access the views from binding
+        binding.btnShareDrawing?.setOnClickListener {
+            shareDrawing()  // Call the shareDrawing function
+        }
 
-        binding = FragmentDrawBinding.inflate(inflater)
+        binding.btnImportDrawing?.setOnClickListener {
+            importImage()  // Call the importImage function
+        }
 
-//        viewModel.bitmap.observe(viewLifecycleOwner) {
-//            binding.customView.passBitmap(it)
-//        }
-
-
+        // Set up drawing observers and listeners
         viewModel.bitmap.observe(viewLifecycleOwner) { bitmap ->
             binding.customView.passBitmap(bitmap)
         }
-        // Handle Save Button click
+
         binding.btnSaveDrawing.setOnClickListener {
             saveCurrentDrawing()
         }
 
-        // Handle color picker button click
         binding.btnColorPicker.setOnClickListener {
             showColorPickerDialog()
         }
 
         binding.btnShapePicker.setOnClickListener {
-            showShapePickerDialog() // Show the dialog to select shapes
+            showShapePickerDialog()
         }
 
-        // Handle Clear Button click (to clear the drawing)
         binding.btnClearDrawing.setOnClickListener {
             clearDrawing()
         }
 
+        if (binding != null) {
+            binding.btnShareDrawing?.setOnClickListener {
+                shareDrawing()
+            }
 
-        // Toggle the visibility of SeekBar when "Size" button is clicked
+            binding.btnImportDrawing?.setOnClickListener {
+                importImage()
+            }
+        }
+
+
         binding.btnSize.setOnClickListener {
             isSeekBarVisible = !isSeekBarVisible
             binding.seekBarPenSize.visibility = if (isSeekBarVisible) View.VISIBLE else View.GONE
@@ -89,6 +109,61 @@ class DrawFragment : Fragment() {
     // Public function to check if the drawing is saved
     fun isDrawingSaved(): Boolean {
         return viewModel.isDrawingSaved
+    }
+
+    // Function to import an image
+    private fun importImage() {
+        // Trigger the image picker
+        importImageLauncher.launch(arrayOf("image/*"))
+    }
+
+    // Handle the imported image and display it in the custom view
+    private fun importImageFromUri(uri: Uri) {
+        val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
+        val importedBitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream?.close()
+
+        if (importedBitmap != null) {
+            binding.customView.passBitmap(importedBitmap)
+            viewModel.setBitmap(importedBitmap)  // Save the imported bitmap
+        } else {
+            Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun shareDrawing() {
+        // Get the bitmap from the custom drawing view
+        val bitmap = binding.customView.getBitmap()
+
+        // Save the bitmap to a temporary file
+        val file = File(requireContext().cacheDir, "shared_drawing.png")
+        try {
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+
+            // Create a URI for the file
+            val fileUri = FileProvider.getUriForFile(
+                requireContext(),
+                "com.example.myapplication.fileprovider",
+                file
+            )
+
+            // Create a share intent
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/png"
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }
+
+            // Start the share intent
+            startActivity(Intent.createChooser(shareIntent, "Share Drawing"))
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Error sharing drawing", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -243,6 +318,8 @@ class DrawFragment : Fragment() {
 
         builder.show()
     }
+
+
 //
 //    override fun onViewStateRestored(savedInstanceState: Bundle?) {
 //        super.onViewStateRestored(savedInstanceState)
