@@ -1,14 +1,17 @@
 package com.example.mydrawingapp
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,7 +24,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,13 +31,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
 
 @Composable
 fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: DrawingViewModel) {
     val context = LocalContext.current
     var drawingName by remember { mutableStateOf("") }
-    val drawingPath = remember { mutableStateListOf<Pair<Float, Float>>() }
+    val drawingPath = remember { mutableStateListOf<DrawnPoint>() }
     val coroutineScope = rememberCoroutineScope()
+
+    // State to hold pen properties
+    var penSize by remember { mutableStateOf(10f) } // Default pen size
+    val penColor = remember { mutableStateOf(Color.Black) }
 
     // Add state to hold the ImageBitmap of the saved image
     var savedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
@@ -95,6 +102,32 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // Pen Size Slider
+            Text("Pen Size: ${penSize.toInt()}")
+            Slider(
+                value = penSize,
+                onValueChange = { newSize -> penSize = newSize },
+                valueRange = 5f..50f,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Pen Color Box
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow).forEach { color ->
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .background(color)
+                            .clickable {
+                                penColor.value = color
+                            }
+                    )
+                }
+            }
+
             // Canvas for Drawing
             Canvas(
                 modifier = Modifier
@@ -102,7 +135,14 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     .background(Color.White)
                     .pointerInput(Unit) {
                         detectDragGestures { change, _ ->
-                            drawingPath.add(Pair(change.position.x, change.position.y))
+                            drawingPath.add(
+                                DrawnPoint(
+                                    x = change.position.x,
+                                    y = change.position.y,
+                                    color = penColor.value,
+                                    size = penSize
+                                )
+                            )
                         }
                     }
             ) {
@@ -114,9 +154,13 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     )
                 }
 
-                // Draw any additional user input after loading the saved drawing
+                // Draw each point with its own color and size
                 for (point in drawingPath) {
-                    drawCircle(Color.Blue, radius = 10f, center = androidx.compose.ui.geometry.Offset(point.first, point.second))
+                    drawCircle(
+                        color = point.color,
+                        radius = point.size,
+                        center = androidx.compose.ui.geometry.Offset(point.x, point.y)
+                    )
                 }
             }
 
@@ -149,7 +193,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     val bitmap = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888)
                     val canvas = Canvas(bitmap)
                     for (point in drawingPath) {
-                        canvas.drawCircle(point.first, point.second, 10f, android.graphics.Paint().apply { color = Color.Blue.toArgb() })
+                        canvas.drawCircle(point.x, point.y, point.size, android.graphics.Paint().apply { color = point.color.toArgb() })
                     }
 
                     // Perform the save operation based on whether we're creating a new drawing or editing an existing one
@@ -176,7 +220,3 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
         }
     }
 }
-
-
-
-
