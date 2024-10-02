@@ -98,6 +98,13 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    //Splash screen
+    implementation("androidx.compose.ui:ui:1.4.3")
+    implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
+    implementation("com.airbnb.android:lottie:6.3.0")
+    testImplementation ("org.robolectric:robolectric:4.7.3")
 }
 
 kapt {

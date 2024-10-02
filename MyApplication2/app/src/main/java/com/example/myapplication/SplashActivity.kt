@@ -6,7 +6,6 @@ import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.airbnb.lottie.LottieAnimationView
 //needs this for setcontentview
-import com.example.myapplication.R
 
 class SplashActivity : AppCompatActivity() {
 
