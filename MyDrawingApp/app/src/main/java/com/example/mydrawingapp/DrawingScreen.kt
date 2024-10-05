@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -30,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.math.hypot
 
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
 
@@ -39,6 +42,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     var drawingName by remember { mutableStateOf("") }
     val drawingPath = remember { mutableStateListOf<DrawnPoint>() }
     val coroutineScope = rememberCoroutineScope()
+    val THRESHOLD_DISTANCE = 5f
 
     // State to hold pen properties
     var penSize by remember { mutableStateOf(10f) } // Default pen size
@@ -86,6 +90,14 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
         }
     }
 
+    // BackHandler to handle the device's back button
+    BackHandler {
+        navController.navigate("login") {
+            popUpTo("splash") { inclusive = true }
+        }
+    }
+
+
     if (isLoading) {
         // Display a loading indicator if data is still loading
         Box(
@@ -102,6 +114,17 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Back Button
+            Button(
+                onClick = {
+                    navController.navigate("login") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                },
+                modifier = Modifier.align(Alignment.Start)
+            ) {
+                Text("Back")
+            }
 
             // Pen Size Slider
             Text("Pen Size: ${penSize.toInt()}")
@@ -133,18 +156,54 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                 modifier = Modifier
                     .size(canvasWidth.dp, canvasHeight.dp) // Match the canvas size to the bitmap size
                     .background(Color.White)
+//                    .pointerInput(Unit) {
+//                        detectDragGestures { change, _ ->
+//                            drawingPath.add(
+//                                DrawnPoint(
+//                                    x = change.position.x,
+//                                    y = change.position.y,
+//                                    color = penColor.value,
+//                                    size = penSize
+//                                )
+//                            )
+//                        }
+//                    }
+
+
                     .pointerInput(Unit) {
-                        detectDragGestures { change, _ ->
-                            drawingPath.add(
-                                DrawnPoint(
-                                    x = change.position.x,
-                                    y = change.position.y,
-                                    color = penColor.value,
-                                    size = penSize
+                detectDragGestures { change, _ ->
+                    val newPoint = change.position
+                    if (drawingPath.isNotEmpty()) {
+                        val lastPoint = drawingPath.last()
+                        val distance = hypot(newPoint.x - lastPoint.x, newPoint.y - lastPoint.y)
+                        // Use interpolation only if the distance exceeds the threshold
+                        if (distance > THRESHOLD_DISTANCE) {
+                            val interpolatedPoints = interpolatePoints(lastPoint, newPoint, 3) // You can adjust the number of steps
+                            interpolatedPoints.forEach { point ->
+                                drawingPath.add(
+                                    DrawnPoint(
+                                        x = point.x,
+                                        y = point.y,
+                                        color = penColor.value,
+                                        size = penSize
+                                    )
                                 )
-                            )
+                            }
                         }
+                    } else {
+                        // If no points exist, add the initial point
+                        drawingPath.add(
+                            DrawnPoint(
+                                x = newPoint.x,
+                                y = newPoint.y,
+                                color = penColor.value,
+                                size = penSize
+                            )
+                        )
                     }
+                }
+                    }
+
             ) {
                 // Ensure that the image fills the canvas with no scaling or cropping
                 savedImageBitmap?.let { image ->
@@ -219,4 +278,15 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             }
         }
     }
+}
+
+
+private fun interpolatePoints(start: DrawnPoint, end: Offset, steps: Int): List<Offset> {
+    val points = mutableListOf<Offset>()
+    val dx = (end.x - start.x) / steps
+    val dy = (end.y - start.y) / steps
+    for (i in 0..steps) {
+        points.add(Offset(start.x + dx * i, start.y + dy * i))
+    }
+    return points
 }

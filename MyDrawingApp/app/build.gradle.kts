@@ -106,7 +106,10 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.3.0")
     testImplementation ("org.robolectric:robolectric:4.7.3")
 
-
+//Drawing
+    implementation("androidx.compose.ui:ui:1.7.3")
+    implementation("androidx.compose.ui:ui-tooling:1.7.3")
+    implementation("androidx.compose.material:material:1.7.3")
 
 }
 
