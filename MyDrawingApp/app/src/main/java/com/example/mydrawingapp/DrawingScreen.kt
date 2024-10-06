@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -33,9 +34,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.hypot
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.unit.Dp
+
 
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
-
+data class Line(val start: Offset, val end: Offset, val color: Color = Color.Black, val strokeWidth: Dp = 1.dp)
 @Composable
 fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: DrawingViewModel) {
     val context = LocalContext.current
@@ -43,6 +47,8 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val drawingPath = remember { mutableStateListOf<DrawnPoint>() }
     val coroutineScope = rememberCoroutineScope()
     val THRESHOLD_DISTANCE = 5f
+    var isLineDrawing by remember { mutableStateOf(false) }
+    val linesPath = remember { mutableStateListOf<Pair<DrawnPoint, DrawnPoint>>() } // Store lines
 
     // State to hold pen properties
     var penSize by remember { mutableStateOf(10f) } // Default pen size
@@ -150,7 +156,19 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     )
                 }
             }
-
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Circle")
+                RadioButton(
+                    selected = !isLineDrawing,
+                    onClick = { isLineDrawing = false }
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("Line")
+                RadioButton(
+                    selected = isLineDrawing,
+                    onClick = { isLineDrawing = true }
+                )
+            }
             // Canvas for Drawing
             Canvas(
                 modifier = Modifier
@@ -171,39 +189,36 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
 
                     .pointerInput(Unit) {
-                detectDragGestures { change, _ ->
-                    val newPoint = change.position
-                    if (drawingPath.isNotEmpty()) {
-                        val lastPoint = drawingPath.last()
-                        val distance = hypot(newPoint.x - lastPoint.x, newPoint.y - lastPoint.y)
-                        // Use interpolation only if the distance exceeds the threshold
-                        if (distance > THRESHOLD_DISTANCE) {
-                            val interpolatedPoints = interpolatePoints(lastPoint, newPoint, 3) // You can adjust the number of steps
-                            interpolatedPoints.forEach { point ->
-                                drawingPath.add(
-                                    DrawnPoint(
-                                        x = point.x,
-                                        y = point.y,
-                                        color = penColor.value,
-                                        size = penSize
-                                    )
-                                )
+                        detectDragGestures { change, dragAmount ->
+                            if (isLineDrawing) {
+                                change.consume()
+
+                                // Line Drawing Mode
+                                val start = change.position - dragAmount
+                                // Handle ending the line when user lifts their finger
+                                val end = change.position
+                                linesPath.add(Pair(
+                                    DrawnPoint(start.x, start.y, penColor.value, penSize),
+                                    DrawnPoint(end.x, end.y, penColor.value, penSize)
+                                ))
+                            } else {
+                                // Freehand Drawing Mode
+                                val newPoint = change.position
+                                if (drawingPath.isNotEmpty()) {
+                                    val lastPoint = drawingPath.last()
+                                    val distance = hypot(newPoint.x - lastPoint.x, newPoint.y - lastPoint.y)
+                                    if (distance > THRESHOLD_DISTANCE) {
+                                        val interpolatedPoints = interpolatePoints(lastPoint, newPoint, 3)
+                                        interpolatedPoints.forEach { point ->
+                                            drawingPath.add(DrawnPoint(point.x, point.y, penColor.value, penSize))
+                                        }
+                                    }
+                                } else {
+                                    drawingPath.add(DrawnPoint(newPoint.x, newPoint.y, penColor.value, penSize))
+                                }
                             }
                         }
-                    } else {
-                        // If no points exist, add the initial point
-                        drawingPath.add(
-                            DrawnPoint(
-                                x = newPoint.x,
-                                y = newPoint.y,
-                                color = penColor.value,
-                                size = penSize
-                            )
-                        )
                     }
-                }
-                    }
-
             ) {
                 // Ensure that the image fills the canvas with no scaling or cropping
                 savedImageBitmap?.let { image ->
@@ -219,6 +234,16 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                         color = point.color,
                         radius = point.size,
                         center = androidx.compose.ui.geometry.Offset(point.x, point.y)
+                    )
+                }
+                // Draw lines
+                for (line in linesPath) {
+                    drawLine(
+                        color = line.first.color,
+                        start = Offset(line.first.x, line.first.y),
+                        end = Offset(line.second.x, line.second.y),
+                        strokeWidth = line.first.size,
+                        cap = StrokeCap.Round
                     )
                 }
             }
