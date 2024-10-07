@@ -2,7 +2,7 @@ package com.example.mydrawingapp
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
+import android.graphics.Canvas as AndroidCanvas
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
@@ -27,6 +27,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,11 +36,16 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.hypot
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.NativeCanvas
+import androidx.compose.ui.graphics.asAndroidBitmap
+// Needed to convert ImageBitmap to Android Bitmap
 
 
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
 data class Line(val start: Offset, val end: Offset, val color: Color = Color.Black, val strokeWidth: Dp = 1.dp)
+
 @Composable
 fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: DrawingViewModel) {
     val context = LocalContext.current
@@ -58,13 +64,23 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     var savedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var filePath by remember { mutableStateOf<String?>(null) } // Hold the file path for saving/updating
-    var canvasWidth by remember { mutableStateOf(400) } // Default canvas width
-    var canvasHeight by remember { mutableStateOf(400) } // Default canvas height
+    var canvasWidth by remember { mutableStateOf(800) } // Default canvas width
+    var canvasHeight by remember { mutableStateOf(800) } // Default canvas height
+
+    val density = LocalDensity.current
 
     // Flag to check if the user is creating a new drawing
     val isCreatingNewDrawing = drawingId == -1
 
-    // Load existing drawing if editing
+    // Convert pixel to dp
+    val canvasWidthDp = remember(savedImageBitmap) {
+        with(density) { (savedImageBitmap?.width ?: canvasWidth).toDp() }
+    }
+
+    val canvasHeightDp = remember(savedImageBitmap) {
+        with(density) { (savedImageBitmap?.height ?: canvasHeight).toDp() }
+    }
+
     LaunchedEffect(drawingId) {
         if (drawingId != null && drawingId != -1) {
             coroutineScope.launch(Dispatchers.IO) {
@@ -102,7 +118,6 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             popUpTo("splash") { inclusive = true }
         }
     }
-
 
     if (isLoading) {
         // Display a loading indicator if data is still loading
@@ -169,25 +184,10 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     onClick = { isLineDrawing = true }
                 )
             }
-            // Canvas for Drawing
             Canvas(
                 modifier = Modifier
-                    .size(canvasWidth.dp, canvasHeight.dp) // Match the canvas size to the bitmap size
+                    .size(canvasWidthDp, canvasHeightDp) // Use correctly converted dp sizes
                     .background(Color.White)
-//                    .pointerInput(Unit) {
-//                        detectDragGestures { change, _ ->
-//                            drawingPath.add(
-//                                DrawnPoint(
-//                                    x = change.position.x,
-//                                    y = change.position.y,
-//                                    color = penColor.value,
-//                                    size = penSize
-//                                )
-//                            )
-//                        }
-//                    }
-
-
                     .pointerInput(Unit) {
                         detectDragGestures { change, dragAmount ->
                             if (isLineDrawing) {
@@ -195,12 +195,13 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
                                 // Line Drawing Mode
                                 val start = change.position - dragAmount
-                                // Handle ending the line when user lifts their finger
                                 val end = change.position
-                                linesPath.add(Pair(
-                                    DrawnPoint(start.x, start.y, penColor.value, penSize),
-                                    DrawnPoint(end.x, end.y, penColor.value, penSize)
-                                ))
+                                linesPath.add(
+                                    Pair(
+                                        DrawnPoint(start.x, start.y, penColor.value, penSize),
+                                        DrawnPoint(end.x, end.y, penColor.value, penSize)
+                                    )
+                                )
                             } else {
                                 // Freehand Drawing Mode
                                 val newPoint = change.position
@@ -220,11 +221,11 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                         }
                     }
             ) {
-                // Ensure that the image fills the canvas with no scaling or cropping
+                // Draw the saved image without scaling
                 savedImageBitmap?.let { image ->
                     drawImage(
-                        image = image,  // ImageBitmap is now used here
-                        dstSize = IntSize(size.width.toInt(), size.height.toInt()) // Match canvas to image
+                        image = image,
+                        topLeft = Offset.Zero // Draw at the top-left corner
                     )
                 }
 
@@ -233,9 +234,10 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     drawCircle(
                         color = point.color,
                         radius = point.size,
-                        center = androidx.compose.ui.geometry.Offset(point.x, point.y)
+                        center = Offset(point.x, point.y)
                     )
                 }
+
                 // Draw lines
                 for (line in linesPath) {
                     drawLine(
@@ -270,14 +272,43 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Save Button
             Button(
                 onClick = {
                     // Create a new bitmap from the user's drawing
                     val bitmap = Bitmap.createBitmap(canvasWidth, canvasHeight, Bitmap.Config.ARGB_8888)
-                    val canvas = Canvas(bitmap)
+                    val canvas = android.graphics.Canvas(bitmap)
+
+                    // Draw existing saved image if editing
+                    savedImageBitmap?.let { image ->
+                        canvas.drawBitmap(image.asAndroidBitmap(), 0f, 0f, null) // Use asAndroidBitmap() directly
+                    }
+
+                    // Draw freehand points
                     for (point in drawingPath) {
-                        canvas.drawCircle(point.x, point.y, point.size, android.graphics.Paint().apply { color = point.color.toArgb() })
+                        canvas.drawCircle(
+                            point.x,
+                            point.y,
+                            point.size,
+                            android.graphics.Paint().apply {
+                                color = point.color.toArgb()
+                                style = android.graphics.Paint.Style.FILL
+                            }
+                        )
+                    }
+
+                    // Draw lines
+                    for (line in linesPath) {
+                        canvas.drawLine(
+                            line.first.x,
+                            line.first.y,
+                            line.second.x,
+                            line.second.y,
+                            android.graphics.Paint().apply {
+                                color = line.first.color.toArgb()
+                                strokeWidth = line.first.size
+                                strokeCap = android.graphics.Paint.Cap.ROUND
+                            }
+                        )
                     }
 
                     // Perform the save operation based on whether we're creating a new drawing or editing an existing one
@@ -305,7 +336,6 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     }
 }
 
-
 private fun interpolatePoints(start: DrawnPoint, end: Offset, steps: Int): List<Offset> {
     val points = mutableListOf<Offset>()
     val dx = (end.x - start.x) / steps
@@ -315,3 +345,5 @@ private fun interpolatePoints(start: DrawnPoint, end: Offset, steps: Int): List<
     }
     return points
 }
+
+
