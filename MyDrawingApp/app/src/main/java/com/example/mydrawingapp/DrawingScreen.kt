@@ -41,12 +41,11 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.core.graphics.toColorInt
-import com.github.skydoves.colorpicker.compose.AlphaSlider
-import com.github.skydoves.colorpicker.compose.AlphaTile
-import com.github.skydoves.colorpicker.compose.BrightnessSlider
+
 import com.github.skydoves.colorpicker.compose.ColorPickerController
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import androidx.compose.ui.platform.testTag
+
 
 // Needed to convert ImageBitmap to Android Bitmap
 
@@ -263,6 +262,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             Canvas(
                 modifier = Modifier
                     .size(canvasWidthDp, canvasHeightDp) // Use correctly converted dp sizes
+//                    .testTag("DrawingCanvas")
                     .background(Color.White)
                     .pointerInput(Unit) {
                         detectDragGestures(

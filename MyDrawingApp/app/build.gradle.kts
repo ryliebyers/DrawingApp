@@ -64,6 +64,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.5.1")
     implementation("androidx.compose.material3:material3:1.1.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.1")
+    testImplementation(libs.androidx.ui.test.junit4.android)
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.1")
 
     // Room Database
@@ -111,6 +112,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling:1.7.3")
     implementation("androidx.compose.material:material:1.7.3")
     implementation("com.github.skydoves:colorpicker-compose:1.0.4")
+
+    // Unit Testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation("org.robolectric:robolectric:4.8")
 
 }
 
