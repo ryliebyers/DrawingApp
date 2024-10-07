@@ -110,6 +110,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.7.3")
     implementation("androidx.compose.ui:ui-tooling:1.7.3")
     implementation("androidx.compose.material:material:1.7.3")
+    implementation("com.github.skydoves:colorpicker-compose:1.0.4")
 
 }
 

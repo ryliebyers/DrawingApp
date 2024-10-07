@@ -2,6 +2,7 @@ package com.example.mydrawingapp
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.graphics.Canvas as AndroidCanvas
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -40,11 +41,18 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.core.graphics.toColorInt
+import com.github.skydoves.colorpicker.compose.AlphaSlider
+import com.github.skydoves.colorpicker.compose.AlphaTile
+import com.github.skydoves.colorpicker.compose.BrightnessSlider
+import com.github.skydoves.colorpicker.compose.ColorPickerController
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+
 // Needed to convert ImageBitmap to Android Bitmap
 
 
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
-data class Line(val start: Offset, val end: Offset, val color: Color = Color.Black, val strokeWidth: Dp = 1.dp)
+//data class Line(val start: Offset, val end: Offset, val color: Color = Color.Black, val strokeWidth: Dp = 1.dp)
 
 @Composable
 fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: DrawingViewModel) {
@@ -53,19 +61,23 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val drawingPath = remember { mutableStateListOf<DrawnPoint>() }
     val coroutineScope = rememberCoroutineScope()
     val THRESHOLD_DISTANCE = 5f
-    var isLineDrawing by remember { mutableStateOf(false) }
     val linesPath = remember { mutableStateListOf<Pair<DrawnPoint, DrawnPoint>>() } // Store lines
 
     // State to hold pen properties
-    var penSize by remember { mutableStateOf(10f) } // Default pen size
-    val penColor = remember { mutableStateOf(Color.Black) }
+    val pen = remember { Pen() }
+
+    // State to control visibility of pen options
+    var showPenOptions by remember { mutableStateOf(false) }
+
+    // Color picker controller from Skydoves library
+    val colorPickerController = remember { ColorPickerController() }
 
     // Add state to hold the ImageBitmap of the saved image
     var savedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var filePath by remember { mutableStateOf<String?>(null) } // Hold the file path for saving/updating
-    var canvasWidth by remember { mutableStateOf(800) } // Default canvas width
-    var canvasHeight by remember { mutableStateOf(800) } // Default canvas height
+    var canvasWidth by remember { mutableStateOf(900) } // Default canvas width
+    var canvasHeight by remember { mutableStateOf(1600) } // Default canvas height
 
     val density = LocalDensity.current
 
@@ -80,6 +92,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val canvasHeightDp = remember(savedImageBitmap) {
         with(density) { (savedImageBitmap?.height ?: canvasHeight).toDp() }
     }
+
 
     LaunchedEffect(drawingId) {
         if (drawingId != null && drawingId != -1) {
@@ -132,93 +145,164 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Back Button
-            Button(
-                onClick = {
-                    navController.navigate("login") {
-                        popUpTo("splash") { inclusive = true }
-                    }
-                },
-                modifier = Modifier.align(Alignment.Start)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(), // Make the row fill the available width
+                horizontalArrangement = Arrangement.SpaceBetween, // Distribute the buttons evenly
+                verticalAlignment = Alignment.CenterVertically // Align buttons in the center vertically
             ) {
-                Text("Back")
-            }
+                // Back Button
+                Button(
+                    onClick = {
+                        navController.navigate("login") {
+                            popUpTo("splash") { inclusive = true }
+                        }
+                    }
 
-            // Pen Size Slider
-            Text("Pen Size: ${penSize.toInt()}")
-            Slider(
-                value = penSize,
-                onValueChange = { newSize -> penSize = newSize },
-                valueRange = 5f..50f,
-                modifier = Modifier.fillMaxWidth()
-            )
+                ) {
+                    Text("Back")
+                }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                // Pen Options Toggle Button
+                Button(
+                    onClick = {
+                        showPenOptions = !showPenOptions
+                    }
 
-            // Pen Color Box
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow).forEach { color ->
-                    Box(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .background(color)
-                            .clickable {
-                                penColor.value = color
-                            }
-                    )
+                ) {
+                    Text("Pen")
                 }
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Circle")
-                RadioButton(
-                    selected = !isLineDrawing,
-                    onClick = { isLineDrawing = false }
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text("Line")
-                RadioButton(
-                    selected = isLineDrawing,
-                    onClick = { isLineDrawing = true }
-                )
+
+            if (showPenOptions) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White.copy(alpha = 0.8f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Pen Size Slider
+                        Text("Pen Size: ${pen.size.value.toInt()}")
+                        Slider(
+                            value = pen.size.value,
+                            onValueChange = { newSize -> pen.changePenSize(newSize) },
+                            valueRange = 5f..50f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Color Picker from Skydoves
+                        Text("Pick a Pen Color")
+                        HsvColorPicker(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            controller = colorPickerController,
+                            onColorChanged = { hsvColor ->
+                                val color = Color(android.graphics.Color.parseColor("#" + hsvColor.hexCode))
+                                pen.changePenColor(color)
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Box to show the selected color
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .background(pen.color.value) // Display the selected color
+                        )
+
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Shape Selector (Circle/Line)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Text("Circle")
+                            RadioButton(
+                                selected = !pen.isLineDrawing.value,
+                                onClick = { pen.toggleDrawingShape() }
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text("Line")
+                            RadioButton(
+                                selected = pen.isLineDrawing.value,
+                                onClick = { pen.toggleDrawingShape() }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Dismiss button
+                        Button(onClick = { showPenOptions = false }) {
+                            Text("Close")
+                        }
+                    }
+                }
             }
+
             Canvas(
                 modifier = Modifier
                     .size(canvasWidthDp, canvasHeightDp) // Use correctly converted dp sizes
                     .background(Color.White)
                     .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
-                            if (isLineDrawing) {
-                                change.consume()
-
-                                // Line Drawing Mode
-                                val start = change.position - dragAmount
-                                val end = change.position
-                                linesPath.add(
-                                    Pair(
-                                        DrawnPoint(start.x, start.y, penColor.value, penSize),
-                                        DrawnPoint(end.x, end.y, penColor.value, penSize)
+                        detectDragGestures(
+                            onDragStart = { startPoint ->
+                                // ***Start a new drawing path for the current curve without connecting to the previous one***
+                                if (!pen.isLineDrawing.value) {
+                                    // Add a new starting point for freehand drawing (reset the starting point)
+                                    drawingPath.add(DrawnPoint(startPoint.x, startPoint.y, pen.color.value, pen.size.value))
+                                }
+                            },
+                            onDrag = { change, dragAmount ->
+                                if (pen.isLineDrawing.value) {
+                                    // Line Drawing Mode
+                                    val start = change.position - dragAmount
+                                    val end = change.position
+                                    linesPath.add(
+                                        Pair(
+                                            DrawnPoint(start.x, start.y, pen.color.value, pen.size.value),
+                                            DrawnPoint(end.x, end.y, pen.color.value, pen.size.value)
+                                        )
                                     )
-                                )
-                            } else {
-                                // Freehand Drawing Mode
-                                val newPoint = change.position
-                                if (drawingPath.isNotEmpty()) {
-                                    val lastPoint = drawingPath.last()
-                                    val distance = hypot(newPoint.x - lastPoint.x, newPoint.y - lastPoint.y)
-                                    if (distance > THRESHOLD_DISTANCE) {
-                                        val interpolatedPoints = interpolatePoints(lastPoint, newPoint, 3)
-                                        interpolatedPoints.forEach { point ->
-                                            drawingPath.add(DrawnPoint(point.x, point.y, penColor.value, penSize))
-                                        }
-                                    }
                                 } else {
-                                    drawingPath.add(DrawnPoint(newPoint.x, newPoint.y, penColor.value, penSize))
+                                    // Freehand Drawing Mode (point drawing)
+                                    val newPoint = change.position
+                                    if (drawingPath.isNotEmpty()) {
+                                        val lastPoint = drawingPath.last()
+                                        val distance = hypot(newPoint.x - lastPoint.x, newPoint.y - lastPoint.y)
+                                        if (distance > THRESHOLD_DISTANCE) {
+                                            val interpolatedPoints = interpolatePoints(lastPoint, newPoint, 3)
+                                            interpolatedPoints.forEach { point ->
+                                                drawingPath.add(DrawnPoint(point.x, point.y, pen.color.value, pen.size.value))
+                                            }
+                                        }
+                                    } else {
+                                        // First point for this new gesture
+                                        drawingPath.add(DrawnPoint(newPoint.x, newPoint.y, pen.color.value, pen.size.value))
+                                    }
                                 }
                             }
-                        }
+                        )
                     }
             ) {
                 // Draw the saved image without scaling
