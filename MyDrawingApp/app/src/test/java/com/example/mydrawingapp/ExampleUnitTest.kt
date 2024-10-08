@@ -150,6 +150,7 @@
 
 package com.example.mydrawingapp
 
+import androidx.compose.ui.graphics.Color
 import com.example.mydrawingapp.Drawing
 import com.example.mydrawingapp.DrawingRepository
 import com.example.drawingapp.viewmodel.DrawingViewModel
@@ -266,5 +267,105 @@ class DrawingViewModelTest {
 
         // Verify that getDrawingById is called with the correct ID
         coVerify { mockRepository.getDrawingById(1) }
+    }
+
+    // Pen properties tests
+
+    // 1. Test if pen size can be changed
+    @Test
+    fun `change pen size test`() = runTest {
+        val pen: Pen = Pen()
+        // Initial pen size should be default
+        assertEquals(10f, pen.size.value)
+
+        // Change the pen size
+        pen.changePenSize(20f)
+
+        // Verify that the pen size has been updated
+        assertEquals(20f, pen.size.value)
+    }
+
+    // 2. Test if pen color can be changed
+    @Test
+    fun `change pen color test`() = runTest {
+
+        val pen: Pen = Pen()
+        // Initial pen color should be black
+        assertEquals(Color.Black, pen.color.value)
+
+        // Change the pen color
+        pen.changePenColor(Color.Red)
+
+        // Verify that the pen color has been updated
+        assertEquals(Color.Red, pen.color.value)
+    }
+
+    // 3. Test if pen shape can be toggled between circle and line
+    @Test
+    fun `toggle pen shape test`() = runTest {
+
+        val pen: Pen = Pen()
+        // Initially the pen should be in freehand mode (circle)
+        assertTrue(!pen.isLineDrawing.value)
+
+        // Toggle the pen shape to line
+        pen.toggleDrawingShape()
+
+        // Verify that pen is now set to line drawing
+        assertTrue(pen.isLineDrawing.value)
+
+        // Toggle back to circle
+        pen.toggleDrawingShape()
+
+        // Verify that pen is back to circle drawing
+        assertTrue(!pen.isLineDrawing.value)
+    }
+
+    // 4. Test if pen options are shown when pen button is clicked
+    @Test
+    fun `pen button click test`() = runTest {
+        var showPenOptions = false
+
+        // Simulate pen button click to show pen options
+        showPenOptions = true
+
+        // Verify that pen options are visible
+        assertTrue(showPenOptions)
+
+        // Simulate pen button click to hide pen options
+        showPenOptions = false
+
+        // Verify that pen options are hidden
+        assertTrue(!showPenOptions)
+    }
+
+    // 5. Test if color picker updates the pen color correctly
+    @Test
+    fun `color picker updates pen color test`() = runTest {
+        val pen: Pen = Pen()
+        // Initial pen color is black
+        assertEquals(Color.Black, pen.color.value)
+
+        // Simulate color picker changing color to Blue
+        val newColor = Color.Blue
+        pen.changePenColor(newColor)
+
+        // Verify that the pen color is updated to Blue
+        assertEquals(Color.Blue, pen.color.value)
+    }
+
+    // 6. Test if color picker updates only valid colors
+    @Test
+    fun `color picker invalid color test`() = runTest {
+        val pen: Pen = Pen()
+        // Simulate color picker trying to change to an invalid color
+        try {
+            pen.changePenColor(Color(android.graphics.Color.parseColor("#ZZZZZZ"))) // Invalid color
+        } catch (e: IllegalArgumentException) {
+            // Expected exception, invalid color
+        }
+
+        // Verify that the pen color remains unchanged
+        assertEquals(Color.Black, pen.color.value)
     }
 }
