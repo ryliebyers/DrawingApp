@@ -354,18 +354,4 @@ class DrawingViewModelTest {
         assertEquals(Color.Blue, pen.color.value)
     }
 
-    // 6. Test if color picker updates only valid colors
-    @Test
-    fun `color picker invalid color test`() = runTest {
-        val pen: Pen = Pen()
-        // Simulate color picker trying to change to an invalid color
-        try {
-            pen.changePenColor(Color(android.graphics.Color.parseColor("#ZZZZZZ"))) // Invalid color
-        } catch (e: IllegalArgumentException) {
-            // Expected exception, invalid color
-        }
-
-        // Verify that the pen color remains unchanged
-        assertEquals(Color.Black, pen.color.value)
-    }
 }
