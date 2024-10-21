@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.core.content.FileProvider
 import com.github.skydoves.colorpicker.compose.ColorPickerController
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import kotlin.math.sqrt
 
 // Needed to convert ImageBitmap to Android Bitmap
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
@@ -59,6 +60,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val coroutineScope = rememberCoroutineScope()
     val THRESHOLD_DISTANCE = 5f
     val linesPath = remember { mutableStateListOf<Pair<DrawnPoint, DrawnPoint>>() } // Store lines
+
     // State to hold pen properties
     val pen = remember { Pen() }
     val marble = remember { Marble(450f, 800f, size = pen.size.value, color = pen.color.value) }
@@ -67,7 +69,10 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     val marbleTrail = remember { mutableStateListOf<DrawnPoint>() }
 
-
+    // Variables to hold shake detection data
+    var lastShakeTime by remember { mutableStateOf(0L) }
+    val SHAKE_THRESHOLD_GRAVITY = 1.1f // Adjust to set shake sensitivity
+    val SHAKE_RESET_TIME_MS = 400L     // Minimum time between shakes in milliseconds
 
     var canvasWidth by remember { mutableStateOf(900) } // Default canvas width
     var canvasHeight by remember { mutableStateOf(1600) } // Default canvas height
@@ -204,6 +209,48 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             context.startActivity(Intent.createChooser(shareIntent, "Share Image"))
         } else {
             Toast.makeText(context, "No image to share", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Define the listener to detect shake events
+    val shakeListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+
+            // Calculate the acceleration
+            val gForce = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
+
+            if (gForce > SHAKE_THRESHOLD_GRAVITY) {
+                val currentTime = System.currentTimeMillis()
+
+                // If the shake is detected and enough time has passed since the last shake
+                if (currentTime - lastShakeTime > SHAKE_RESET_TIME_MS) {
+                    lastShakeTime = currentTime
+
+                    // Increase the pen size by a factor (adjust as needed)
+                    pen.changePenSize(pen.size.value + 10f)
+
+                    // Ensure pen size does not exceed the upper bound
+                    if (pen.size.value > 50f) {
+                        pen.changePenSize(50f)
+                    }
+
+                    Toast.makeText(context, "Shake detected! Pen size increased.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    // Register and unregister the shake listener
+    DisposableEffect(Unit) {
+        sensorManager.registerListener(shakeListener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+
+        onDispose {
+            sensorManager.unregisterListener(shakeListener)
         }
     }
 
