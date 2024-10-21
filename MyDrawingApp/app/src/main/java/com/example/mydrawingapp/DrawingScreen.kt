@@ -1,8 +1,13 @@
 package com.example.mydrawingapp
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.provider.MediaStore
 import android.widget.Toast
@@ -43,6 +48,8 @@ import com.github.skydoves.colorpicker.compose.HsvColorPicker
 
 // Needed to convert ImageBitmap to Android Bitmap
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
+// Marble data class
+data class Marble(var x: Float, var y: Float, var vx: Float = 0f, var vy: Float = 0f, val size: Float, val color: Color)
 
 @Composable
 fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: DrawingViewModel) {
@@ -52,9 +59,76 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val coroutineScope = rememberCoroutineScope()
     val THRESHOLD_DISTANCE = 5f
     val linesPath = remember { mutableStateListOf<Pair<DrawnPoint, DrawnPoint>>() } // Store lines
-
     // State to hold pen properties
     val pen = remember { Pen() }
+    val marble = remember { Marble(450f, 800f, size = pen.size.value, color = pen.color.value) }
+    var isMarbleMode by remember { mutableStateOf(false) } // State to toggle marble mode
+    val sensorManager = LocalContext.current.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    val marbleTrail = remember { mutableStateListOf<DrawnPoint>() }
+
+
+
+    var canvasWidth by remember { mutableStateOf(900) } // Default canvas width
+    var canvasHeight by remember { mutableStateOf(1600) } // Default canvas height
+
+
+
+    DisposableEffect(isMarbleMode) {
+        if (isMarbleMode) {
+            val listener = object : SensorEventListener {
+                override fun onSensorChanged(event: SensorEvent) {
+                    val xAcceleration = -event.values[0] // Adjust signs as needed
+                    val yAcceleration = event.values[1]
+
+                    // Update marble velocity and position
+                    marble.vx += xAcceleration
+                    marble.vy += yAcceleration
+
+                    // Apply some damping to simulate friction/resistance
+                    marble.vx *= 0.5f
+                    marble.vy *= 0.5f
+
+                    // Update the position of the marble
+                    marble.x += marble.vx
+                    marble.y += marble.vy
+
+                    // Ensure the marble stays within the bounds of the canvas
+                    marble.x = marble.x.coerceIn(0f, canvasWidth.toFloat())
+                    marble.y = marble.y.coerceIn(0f, canvasHeight.toFloat())
+
+
+                    val previousX = marble.x
+                    val previousY = marble.y
+
+// Use  interpolatePoints function to get a smoother transition
+                    val interpolatedOffsets = interpolatePoints(
+                        DrawnPoint(previousX, previousY, marble.color, marble.size),
+                        Offset(marble.x, marble.y),
+                        steps = 5 // Increase this for more smoothness
+                    )
+
+// Convert the interpolated offsets to DrawnPoints with the same color and size as the marble
+                    val interpolatedPoints = interpolatedOffsets.map { offset ->
+                        DrawnPoint(offset.x, offset.y, marble.color, marble.size)
+                    }
+
+// Add the interpolated points to the marble trail
+                    marbleTrail.addAll(interpolatedPoints)
+                }
+
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+            }
+
+            sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+
+            onDispose {
+                sensorManager.unregisterListener(listener)
+            }
+        } else {
+            onDispose { /* Nothing to clean up when not in marble mode */ }
+        }
+    }
 
     // State to control visibility of pen options
     var showPenOptions by remember { mutableStateOf(false) }
@@ -66,8 +140,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     var savedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var filePath by remember { mutableStateOf<String?>(null) } // Hold the file path for saving/updating
-    var canvasWidth by remember { mutableStateOf(900) } // Default canvas width
-    var canvasHeight by remember { mutableStateOf(1600) } // Default canvas height
+
 
     val density = LocalDensity.current
 
@@ -264,6 +337,12 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                                 selected = pen.isLineDrawing.value,
                                 onClick = { pen.toggleDrawingShape() }
                             )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text("Marble")
+                            RadioButton(
+                                selected = isMarbleMode,
+                                onClick = { isMarbleMode = true }
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -299,7 +378,9 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                                             DrawnPoint(end.x, end.y, pen.color.value, pen.size.value)
                                         )
                                     )
-                                } else {
+                                }
+
+                                else {
                                     // Freehand Drawing Mode
                                     val newPoint = change.position
                                     if (drawingPath.isNotEmpty()) {
@@ -318,7 +399,9 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                             }
                         )
                     }
-            ) {
+            )
+
+            {
                 // Draw saved image if available
                 savedImageBitmap?.let { image ->
                     drawImage(image = image, topLeft = Offset.Zero)
@@ -342,6 +425,25 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                         strokeWidth = line.first.size,
                         cap = StrokeCap.Round
                     )
+                }
+                    // Draw the marble and its trail if marble mode is active
+                    if (isMarbleMode) {
+                        // Draw the trail of the marble
+                        for (point in marbleTrail) {
+                            drawCircle(
+                                color = point.color,
+                                radius = point.size,
+                                center = Offset(point.x, point.y)
+                            )
+                        }
+
+                        // Draw the current position of the marble as a circle
+                        drawCircle(
+                            color = marble.color,
+                            radius = marble.size,
+                            center = Offset(marble.x, marble.y)
+                        )
+
                 }
             }
 
@@ -442,3 +544,5 @@ private fun interpolatePoints(start: DrawnPoint, end: Offset, steps: Int): List<
     }
     return points
 }
+
+
