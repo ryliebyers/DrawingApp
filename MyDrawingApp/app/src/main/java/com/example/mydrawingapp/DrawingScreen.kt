@@ -52,7 +52,7 @@ import kotlin.math.sqrt
 // Needed to convert ImageBitmap to Android Bitmap
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
 // Marble data class
-data class Marble(var x: Float, var y: Float, var vx: Float = 0f, var vy: Float = 0f, val size: Float, val color: Color)
+data class Marble(var x: Float, var y: Float, var vx: Float = 0f, var vy: Float = 0f, var size: Float, var color: Color)
 
 @Composable
 fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: DrawingViewModel) {
@@ -70,6 +70,9 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val sensorManager = LocalContext.current.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     val marbleTrail = remember { mutableStateListOf<DrawnPoint>() }
+// State to hold the marble's properties
+    var marbleSize by remember { mutableStateOf(pen.size.value) }
+    var marbleColor by remember { mutableStateOf(pen.color.value) }
 
     // Variables to hold shake detection data
     var lastShakeTime by remember { mutableStateOf(0L) }
@@ -78,6 +81,8 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
     var canvasWidth by remember { mutableStateOf(900) } // Default canvas width
     var canvasHeight by remember { mutableStateOf(1600) } // Default canvas height
+
+
 
     DisposableEffect(isMarbleMode) {
         if (isMarbleMode) {
@@ -102,22 +107,23 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     marble.x = marble.x.coerceIn(0f, canvasWidth.toFloat())
                     marble.y = marble.y.coerceIn(0f, canvasHeight.toFloat())
 
+
                     val previousX = marble.x
                     val previousY = marble.y
 
-                    // Use interpolatePoints function to get a smoother transition
+// Use  interpolatePoints function to get a smoother transition
                     val interpolatedOffsets = interpolatePoints(
                         DrawnPoint(previousX, previousY, marble.color, marble.size),
                         Offset(marble.x, marble.y),
                         steps = 5 // Increase this for more smoothness
                     )
 
-                    // Convert the interpolated offsets to DrawnPoints with the same color and size as the marble
+// Convert the interpolated offsets to DrawnPoints with the same color and size as the marble
                     val interpolatedPoints = interpolatedOffsets.map { offset ->
                         DrawnPoint(offset.x, offset.y, marble.color, marble.size)
                     }
 
-                    // Add the interpolated points to the marble trail
+// Add the interpolated points to the marble trail
                     marbleTrail.addAll(interpolatedPoints)
                 }
 
@@ -133,6 +139,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             onDispose { /* Nothing to clean up when not in marble mode */ }
         }
     }
+
 
     // State to control visibility of pen options
     var showPenOptions by remember { mutableStateOf(false) }
@@ -338,25 +345,77 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            Text("Circle")
-                            RadioButton(
-                                selected = !pen.isLineDrawing.value,
-                                onClick = { pen.toggleDrawingShape() }
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text("Line")
-                            RadioButton(
-                                selected = pen.isLineDrawing.value,
-                                onClick = { pen.toggleDrawingShape() }
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text("Marble")
+                        )
+//                        {
+//                            Text("Circle")
+//                            RadioButton(
+//                                selected = !pen.isLineDrawing.value,
+//                                onClick = { pen.toggleDrawingShape() }
+//                            )
+//                            Spacer(modifier = Modifier.width(16.dp))
+//                            Text("Line")
+//                            RadioButton(
+//                                selected = pen.isLineDrawing.value,
+//                                onClick = { pen.toggleDrawingShape() }
+//                            )
+//                            Spacer(modifier = Modifier.width(16.dp))
+//                            Text("Marble")
+//                            RadioButton(
+//                                selected = isMarbleMode,
+//                                onClick = { isMarbleMode = true }
+//                            )
+//                        }
+
+
+
+                        {
+                                Text("Circle")
+                                RadioButton(
+                                    selected = !pen.isLineDrawing.value && !isMarbleMode,
+                                    onClick = {
+                                        pen.isLineDrawing.value = false // Set to circle mode
+                                        isMarbleMode = false // Disable marble mode
+                                    },
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text("Line")
+                                RadioButton(
+                                    selected = pen.isLineDrawing.value && !isMarbleMode,
+                                    onClick = {
+                                        pen.isLineDrawing.value = true // Set to line mode
+                                        isMarbleMode = false // Disable marble mode
+                                    },
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text("Marble")
+//                                RadioButton(
+//                                    selected = isMarbleMode,
+//                                    onClick = { isMarbleMode = true }
+//                                )
                             RadioButton(
                                 selected = isMarbleMode,
-                                onClick = { isMarbleMode = true }
+                                onClick = {
+                                    if (!isMarbleMode) {
+                                        // Switch to marble mode and apply stored marble properties
+                                        isMarbleMode = true
+//                                        pen.size.value = marbleSize
+//                                        pen.color.value = marbleColor
+
+                                        marbleSize = pen.size.value
+                                        marbleColor = pen.color.value
+
+                                    } else {
+                                        // Exiting marble mode, save the marble's current properties
+                                        marbleSize = pen.size.value
+                                        marbleColor = pen.color.value
+                                        isMarbleMode = false
+                                    }
+                                }
                             )
-                        }
+                            }
+
+
+
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -437,23 +496,24 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                 }
 
                 // Draw the marble and its trail if marble mode is active
-                if (isMarbleMode) {
+
                     // Draw the trail of the marble
                     for (point in marbleTrail) {
                         drawCircle(
-                            color = point.color,
-                            radius = point.size,
+                            color = marbleColor,
+                            radius = marbleSize,
                             center = Offset(point.x, point.y)
                         )
-                    }
 
-                    // Draw the current position of the marble as a circle
-                    drawCircle(
-                        color = marble.color,
-                        radius = marble.size,
-                        center = Offset(marble.x, marble.y)
-                    )
-                }
+                        if (isMarbleMode) {
+                            // Draw the current position of the marble as a circle
+                            drawCircle(
+                                color = pen.color.value,
+                                radius = pen.size.value,
+                                center = Offset(marble.x, marble.y)
+                            )
+                        }
+                    }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
