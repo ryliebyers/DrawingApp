@@ -276,14 +276,33 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Black Color Box...
-                        Box(
+                        // Row of boxes for different shades of black and gray
+                        Row(
                             modifier = Modifier
-                                .size(50.dp) // Make it square with both height and width of 50dp
-                                .background(Color.Black) // Set the background color to black
-                                .clickable { pen.changePenColor(Color.Black) } // Make it clickable to select black color
-                                .border(2.dp, Color.Gray) // Add a border to match the color picker's style
-                        )
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly // Distribute the boxes evenly
+                        ) {
+                            // List of shades (from black to lighter shades of gray)
+                            val shades = listOf(
+                                Color.Black,
+                                Color.DarkGray,
+                                Color.Gray,
+                                Color.LightGray
+                            )
+
+                            // Iterate over each shade and create a clickable box
+                            shades.forEach { shade ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(50.dp) // Make it square with a size of 50dp
+                                        .background(shade) // Set the background color to the current shade
+                                        .clickable { pen.changePenColor(shade) } // Make it clickable to select the color
+                                        .border(2.dp, Color.Gray) // Add a border to make it stand out
+                                )
+                            }
+                        }
+
 
 
                         Spacer(modifier = Modifier.height(16.dp))
