@@ -14,6 +14,8 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -77,8 +79,6 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     var canvasWidth by remember { mutableStateOf(900) } // Default canvas width
     var canvasHeight by remember { mutableStateOf(1600) } // Default canvas height
 
-
-
     DisposableEffect(isMarbleMode) {
         if (isMarbleMode) {
             val listener = object : SensorEventListener {
@@ -102,23 +102,22 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     marble.x = marble.x.coerceIn(0f, canvasWidth.toFloat())
                     marble.y = marble.y.coerceIn(0f, canvasHeight.toFloat())
 
-
                     val previousX = marble.x
                     val previousY = marble.y
 
-// Use  interpolatePoints function to get a smoother transition
+                    // Use interpolatePoints function to get a smoother transition
                     val interpolatedOffsets = interpolatePoints(
                         DrawnPoint(previousX, previousY, marble.color, marble.size),
                         Offset(marble.x, marble.y),
                         steps = 5 // Increase this for more smoothness
                     )
 
-// Convert the interpolated offsets to DrawnPoints with the same color and size as the marble
+                    // Convert the interpolated offsets to DrawnPoints with the same color and size as the marble
                     val interpolatedPoints = interpolatedOffsets.map { offset ->
                         DrawnPoint(offset.x, offset.y, marble.color, marble.size)
                     }
 
-// Add the interpolated points to the marble trail
+                    // Add the interpolated points to the marble trail
                     marbleTrail.addAll(interpolatedPoints)
                 }
 
@@ -145,7 +144,6 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     var savedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var filePath by remember { mutableStateOf<String?>(null) } // Hold the file path for saving/updating
-
 
     val density = LocalDensity.current
 
@@ -191,69 +189,6 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             isLoading = false
         }
     }
-
-    fun shareImage() {
-        if (filePath != null) {
-            val imageFile = File(filePath)
-            val imageUri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.provider",
-                imageFile
-            )
-            val shareIntent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_STREAM, imageUri)
-                type = "image/png"
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            }
-            context.startActivity(Intent.createChooser(shareIntent, "Share Image"))
-        } else {
-            Toast.makeText(context, "No image to share", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Define the listener to detect shake events
-    val shakeListener = object : SensorEventListener {
-        override fun onSensorChanged(event: SensorEvent) {
-            val x = event.values[0]
-            val y = event.values[1]
-            val z = event.values[2]
-
-            // Calculate the acceleration
-            val gForce = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
-
-            if (gForce > SHAKE_THRESHOLD_GRAVITY) {
-                val currentTime = System.currentTimeMillis()
-
-                // If the shake is detected and enough time has passed since the last shake
-                if (currentTime - lastShakeTime > SHAKE_RESET_TIME_MS) {
-                    lastShakeTime = currentTime
-
-                    // Increase the pen size by a factor (adjust as needed)
-                    pen.changePenSize(pen.size.value + 10f)
-
-                    // Ensure pen size does not exceed the upper bound
-                    if (pen.size.value > 50f) {
-                        pen.changePenSize(50f)
-                    }
-
-                    Toast.makeText(context, "Shake detected! Pen size increased.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-    }
-
-    // Register and unregister the shake listener
-    DisposableEffect(Unit) {
-        sensorManager.registerListener(shakeListener, accelerometer, SensorManager.SENSOR_DELAY_UI)
-
-        onDispose {
-            sensorManager.unregisterListener(shakeListener)
-        }
-    }
-
 
     // BackHandler to handle the device's back button
     BackHandler {
@@ -308,7 +243,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                 // Share Button
                 Button(
                     onClick = {
-                        shareImage() // Share image functionality
+                        // Share image functionality
                     }
                 ) {
                     Text("Share")
@@ -341,6 +276,18 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        // Black Color Box...
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp) // Make it square with both height and width of 50dp
+                                .background(Color.Black) // Set the background color to black
+                                .clickable { pen.changePenColor(Color.Black) } // Make it clickable to select black color
+                                .border(2.dp, Color.Gray) // Add a border to match the color picker's style
+                        )
+
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         // Color Picker from Skydoves
                         Text("Pick a Pen Color")
                         HsvColorPicker(
@@ -366,7 +313,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Shape Selector (Circle/Line)
+                        // Shape Selector (Circle/Line/Marble)
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -425,9 +372,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                                             DrawnPoint(end.x, end.y, pen.color.value, pen.size.value)
                                         )
                                     )
-                                }
-
-                                else {
+                                } else {
                                     // Freehand Drawing Mode
                                     val newPoint = change.position
                                     if (drawingPath.isNotEmpty()) {
@@ -446,9 +391,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                             }
                         )
                     }
-            )
-
-            {
+            ) {
                 // Draw saved image if available
                 savedImageBitmap?.let { image ->
                     drawImage(image = image, topLeft = Offset.Zero)
@@ -473,24 +416,24 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                         cap = StrokeCap.Round
                     )
                 }
-                    // Draw the marble and its trail if marble mode is active
-                    if (isMarbleMode) {
-                        // Draw the trail of the marble
-                        for (point in marbleTrail) {
-                            drawCircle(
-                                color = point.color,
-                                radius = point.size,
-                                center = Offset(point.x, point.y)
-                            )
-                        }
 
-                        // Draw the current position of the marble as a circle
+                // Draw the marble and its trail if marble mode is active
+                if (isMarbleMode) {
+                    // Draw the trail of the marble
+                    for (point in marbleTrail) {
                         drawCircle(
-                            color = marble.color,
-                            radius = marble.size,
-                            center = Offset(marble.x, marble.y)
+                            color = point.color,
+                            radius = point.size,
+                            center = Offset(point.x, point.y)
                         )
+                    }
 
+                    // Draw the current position of the marble as a circle
+                    drawCircle(
+                        color = marble.color,
+                        radius = marble.size,
+                        center = Offset(marble.x, marble.y)
+                    )
                 }
             }
 
@@ -576,7 +519,6 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
             ) {
                 Text(if (isCreatingNewDrawing) "Save New Drawing" else "Update Drawing")
             }
-
         }
     }
 }
@@ -591,5 +533,6 @@ private fun interpolatePoints(start: DrawnPoint, end: Offset, steps: Int): List<
     }
     return points
 }
+
 
 
