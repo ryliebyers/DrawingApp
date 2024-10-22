@@ -54,6 +54,8 @@ data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Fl
 // Marble data class
 data class Marble(var x: Float, var y: Float, var vx: Float = 0f, var vy: Float = 0f, var size: Float, var color: Color)
 
+
+
 @Composable
 fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: DrawingViewModel) {
     val context = LocalContext.current
@@ -79,10 +81,31 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val SHAKE_THRESHOLD_GRAVITY = 1.1f // Adjust to set shake sensitivity
     val SHAKE_RESET_TIME_MS = 400L     // Minimum time between shakes in milliseconds
 
+
+    var filePath by remember { mutableStateOf<String?>(null) }
     var canvasWidth by remember { mutableStateOf(900) } // Default canvas width
     var canvasHeight by remember { mutableStateOf(1600) } // Default canvas height
 
 
+    fun shareImage() {
+        if (filePath != null) {
+            val imageFile = File(filePath)
+            val imageUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                imageFile
+            )
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, imageUri)
+                type = "image/png"
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Share Image"))
+        } else {
+            Toast.makeText(context, "No image to share", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     DisposableEffect(isMarbleMode) {
         if (isMarbleMode) {
@@ -150,7 +173,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     // Add state to hold the ImageBitmap of the saved image
     var savedImageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-    var filePath by remember { mutableStateOf<String?>(null) } // Hold the file path for saving/updating
+
 
     val density = LocalDensity.current
 
@@ -250,7 +273,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                 // Share Button
                 Button(
                     onClick = {
-                        // Share image functionality
+                        shareImage() // Share image functionality
                     }
                 ) {
                     Text("Share")
