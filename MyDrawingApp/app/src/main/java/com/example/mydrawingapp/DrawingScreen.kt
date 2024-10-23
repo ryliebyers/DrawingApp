@@ -220,6 +220,39 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
         }
     }
 
+    // Define the listener to detect shake events
+    val shakeListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+            // Calculate the acceleration
+            val gForce = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
+            if (gForce > SHAKE_THRESHOLD_GRAVITY) {
+                val currentTime = System.currentTimeMillis()
+                // If the shake is detected and enough time has passed since the last shake
+                if (currentTime - lastShakeTime > SHAKE_RESET_TIME_MS) {
+                    lastShakeTime = currentTime
+                    // Increase the pen size by a factor (adjust as needed)
+                    pen.changePenSize(pen.size.value + 10f)
+                    // Ensure pen size does not exceed the upper bound
+                    if (pen.size.value > 50f) {
+                        pen.changePenSize(50f)
+                    }
+                    Toast.makeText(context, "Shake detected! Pen size increased.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+    // Register and unregister the shake listener
+    DisposableEffect(Unit) {
+        sensorManager.registerListener(shakeListener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        onDispose {
+            sensorManager.unregisterListener(shakeListener)
+        }
+    }
+
     // BackHandler to handle the device's back button
     BackHandler {
         navController.navigate("login") {
