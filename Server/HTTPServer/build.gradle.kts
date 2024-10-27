@@ -54,4 +54,7 @@ dependencies {
 
     implementation("io.ktor:ktor-serialization-kotlinx-xml:$ktor_version")
 
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
+
 }
