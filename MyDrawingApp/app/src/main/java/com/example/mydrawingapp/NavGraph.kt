@@ -1,5 +1,6 @@
 package com.example.drawingapp.ui
 
+import UploadImageScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -8,22 +9,6 @@ import com.example.drawingapp.ui.screens.LoginScreen
 import com.example.mydrawingapp.DrawingScreen
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.example.mydrawingapp.SplashScreen
-
-//@Composable
-//fun NavGraph(navController: NavHostController, viewModel: DrawingViewModel) {
-//    NavHost(navController = navController, startDestination = "login") {
-//        composable("login") {
-//            LoginScreen(navController = navController, viewModel = viewModel)
-//        }
-//        composable("create_drawing") {
-//            DrawingScreen(navController = navController, drawingId = -1, viewModel = viewModel)
-//        }
-//        composable("edit_drawing/{drawingId}") { backStackEntry ->
-//            val drawingId = backStackEntry.arguments?.getString("drawingId")?.toInt() ?: -1
-//            DrawingScreen(navController = navController, drawingId = drawingId, viewModel = viewModel)
-//        }
-//    }
-//}
 
 @Composable
 fun NavGraph(navController: NavHostController, viewModel: DrawingViewModel) {
@@ -35,6 +20,8 @@ fun NavGraph(navController: NavHostController, viewModel: DrawingViewModel) {
                 }
             })
         }
+
+
         composable("login") {
             LoginScreen(navController = navController, viewModel = viewModel)
         }
@@ -44,6 +31,11 @@ fun NavGraph(navController: NavHostController, viewModel: DrawingViewModel) {
         composable("edit_drawing/{drawingId}") { backStackEntry ->
             val drawingId = backStackEntry.arguments?.getString("drawingId")?.toInt() ?: -1
             DrawingScreen(navController = navController, drawingId = drawingId, viewModel = viewModel)
+        }
+
+        composable("upload_image/{drawingId}") { backStackEntry ->
+            val drawingId = backStackEntry.arguments?.getString("drawingId")?.toInt() ?: -1
+            UploadImageScreen(viewModel = viewModel, drawingId = drawingId)
         }
     }
 }

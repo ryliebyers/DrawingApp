@@ -1,9 +1,11 @@
 package com.example.drawingapp.viewmodel
-
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
 import com.example.mydrawingapp.Drawing
 import com.example.mydrawingapp.DrawingRepository
 import com.example.mydrawingapp.DrawnPoint
@@ -12,6 +14,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import android.graphics.Paint
+
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+
 
 class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() {
 
@@ -30,9 +41,29 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         }
     }
 
-    suspend fun getDrawingById(id: Int): Drawing? {
-        return repository.getDrawingById(id)
+    suspend fun getDrawingById(id: Int): Drawing? = withContext(Dispatchers.IO) {
+        repository.getDrawingById(id)
     }
+
+
+    // Renders a Drawing object into a Bitmap by loading the image from its file path
+    fun getCurrentDrawing(drawing: Drawing): Bitmap {
+        val file = File(drawing.filePath)
+        return if (file.exists()) {
+            // Decode the bitmap from the file path
+            BitmapFactory.decodeFile(drawing.filePath)
+        } else {
+            // If the file does not exist, create a blank bitmap as a fallback
+            val width = 800
+            val height = 800
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            canvas.drawColor(Color.WHITE) // Fill the background with white
+            // Returns the blank white bitmap
+            bitmap
+        }
+    }
+
 
 }
 

@@ -311,6 +311,14 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                 ) {
                     Text("Share")
                 }
+
+                Button(onClick = {
+
+                    // Navigate to upload image screen with the saved drawing ID
+                    navController.navigate("upload_image/$drawingId")
+                }) {
+                    Text("Upload Image")
+                }
             }
 
             if (showPenOptions) {

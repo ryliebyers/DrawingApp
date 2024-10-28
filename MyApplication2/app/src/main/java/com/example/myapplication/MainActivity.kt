@@ -60,11 +60,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
-
-
-
 } //end of main
 
 

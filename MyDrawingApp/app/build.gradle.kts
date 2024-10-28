@@ -128,6 +128,10 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.robolectric:robolectric:4.8")
 
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.google.code.gson:gson:2.8.9")
+
+
 }
 
 kapt {
