@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 object ImageUploader {
-    private const val BASE_URL = "http://10.0.2.2:8081/images" // Adjust the URL as needed
+    private const val BASE_URL = "http://10.0.2.2:8081/images"
 
     suspend fun uploadImage(
         context: Context,
