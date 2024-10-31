@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -131,6 +132,17 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("com.google.code.gson:gson:2.8.9")
 
+
+    // Firebase BOM (centralizes Firebase versions)
+    implementation(platform("com.google.firebase:firebase-bom:32.0.0"))
+
+    // Firebase Authentication and Firestore
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    //Firebase
+//    implementation(libs.firebase.firestore)
+//    implementation(libs.firebase.auth.ktx)
 
 }
 

@@ -2,12 +2,14 @@ package com.example.drawingapp.ui
 
 import UploadImageScreen
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.drawingapp.ui.screens.LoginScreen
 import com.example.mydrawingapp.DrawingScreen
 import com.example.drawingapp.viewmodel.DrawingViewModel
+import com.example.mydrawingapp.SigninScreen
 import com.example.mydrawingapp.SplashScreen
 
 @Composable
@@ -15,13 +17,14 @@ fun NavGraph(navController: NavHostController, viewModel: DrawingViewModel) {
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") {
             SplashScreen(onTimeout = {
-                navController.navigate("login") {
+                navController.navigate("signin") {
                     popUpTo("splash") { inclusive = true }
                 }
             })
         }
-
-
+        composable("signin"){
+            SigninScreen(navController = navController, viewModel = viewModel)
+        }
         composable("login") {
             LoginScreen(navController = navController, viewModel = viewModel)
         }
