@@ -28,7 +28,10 @@ repositories {
 val ktor_version = "2.3.2"
 
 dependencies {
+    // Ktor dependencies
     implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-websockets:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-server-auth:$ktor_version")
@@ -37,17 +40,22 @@ dependencies {
     implementation("io.ktor:ktor-server-http-redirect:$ktor_version")
     implementation("io.ktor:ktor-server-call-logging:$ktor_version")
     implementation("io.ktor:ktor-server-resources:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    // implementation("io.ktor:ktor-server-multipart:$ktor_version")
+    // implementation("io.ktor:ktor-server-multipart:$ktor_version") // Uncomment if needed
+
+    // Exposed dependencies
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+
+    // H2 database
     implementation("com.h2database:h2:$h2_version")
+
+    // Logging
     implementation("ch.qos.logback:logback-classic:$logback_version")
+
+    // Testing
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-
-
-
 }
+
 

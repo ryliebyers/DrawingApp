@@ -1,16 +1,20 @@
 package com.example.mydrawingapp
 
-
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.drawingapp.viewmodel.DrawingViewModel
@@ -26,41 +30,77 @@ fun SigninScreen(navController: NavController, viewModel: DrawingViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(Color(0xFFBEBEBE)) // Grayish background
+            .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = "Start Drawing",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFFFD700), // Gold color for title text
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        // Email Input Field
         TextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFE5E5E5), RoundedCornerShape(8.dp)) // Light gray for input fields
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
+        // Password Input Field
         TextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFE5E5E5), RoundedCornerShape(8.dp)) // Light gray for input fields
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Login Button
-        Button(onClick = { signInUser(email, password, firebaseAuth, context, navController) }) {
-            Text("Login")
+        Button(
+            onClick = { signInUser(email, password, firebaseAuth, context, navController) },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black), // Black background
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(50.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(text = "Login", color = Color(0xFFFFD700), fontSize = 18.sp) // Gold text
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Register Button
-        Button(onClick = { registerUser(email, password, firebaseAuth, context, navController) }) {
-            Text("Register")
+        OutlinedButton(
+            onClick = { registerUser(email, password, firebaseAuth, context, navController) },
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black), // Black text for outlined button
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(50.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, Color(0xFFFFD700)) // Gold outline
+        ) {
+            Text(text = "Register", fontSize = 18.sp, color = Color.Black) // Black text
         }
     }
 }
+
 
 // Function to handle user login
 private fun signInUser(

@@ -19,7 +19,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -289,35 +291,41 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                         navController.navigate("login") {
                             popUpTo("splash") { inclusive = true }
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black) // Black background
                 ) {
-                    Text("Back")
+                    Text("Back", color = Color(0xFFFFD700)) // Gold text
                 }
+
 
                 // Pen Options Button
                 Button(
                     onClick = {
                         showPenOptions = !showPenOptions
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                 ) {
-                    Text("Pen")
+                    Text("Pen", color = Color(0xFFFFD700))
                 }
 
                 // Share Button
                 Button(
                     onClick = {
                         shareImage() // Share image functionality
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                 ) {
-                    Text("Share")
+                    Text("Share", color = Color(0xFFFFD700))
                 }
 
                 Button(onClick = {
 
                     // Navigate to upload image screen with the saved drawing ID
                     navController.navigate("upload_image/$drawingId")
-                }) {
-                    Text("Upload Image")
+                },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text("Upload Image", color = Color(0xFFFFD700))
                 }
             }
 
@@ -478,14 +486,12 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                             )
                             }
 
-
-
-
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // Dismiss button
-                        Button(onClick = { showPenOptions = false }) {
-                            Text("Close")
+                        Button(onClick = { showPenOptions = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)) {
+                            Text("Close", color = Color(0xFFFFD700))
                         }
                     }
                 }
@@ -591,7 +597,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                     decorationBox = { innerTextField ->
                         Box(
                             Modifier
-                                .background(Color.Gray)
+                                .background(Color(0xFFD3D3D3))
                                 .padding(16.dp)
                         ) {
                             if (drawingName.isEmpty()) Text("Enter Drawing Name")
@@ -658,9 +664,10 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                             }
                         }
                     }
-                }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
             ) {
-                Text(if (isCreatingNewDrawing) "Save New Drawing" else "Update Drawing")
+                Text(if (isCreatingNewDrawing) "Save New Drawing" else "Update Drawing", color = Color(0xFFFFD700))
             }
         }
     }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Images</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; }
+        .image-card { border: 1px solid #ccc; padding: 10px; text-align: center; width: 200px; }
+        img { width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+<h1>All Images</h1>
+<div class="container" id="image-container"></div>
+
+<script>
+    async function loadImages() {
+        try {
+            const response = await fetch('http://localhost:8081/images/all');
+            const images = await response.json();
+            const container = document.getElementById('image-container');
+            images.forEach(({ imageUrl, userId }) => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                card.innerHTML = `<img src="${imageUrl}" alt="User Image"><p>User ID: ${userId}</p>`;
+                container.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error loading images:', error);
+        }
+    }
+
+    loadImages();
+</script>
+</body>
+</html>

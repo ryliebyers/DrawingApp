@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Images</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        .image-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px;
+            text-align: center;
+            width: 200px;
+        }
+        .user-id {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .image-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<h1>Uploaded Images</h1>
+<div id="images-container"></div>
+
+<script>
+    fetch("/api/images")
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('images-container');
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+
+                const userId = document.createElement('div');
+                userId.className = 'user-id';
+                userId.innerText = `User ID: ${item.userId}`;
+
+                const img = document.createElement('img');
+                img.src = item.imageUrl;
+                img.alt = item.name;
+
+                card.appendChild(userId);
+                card.appendChild(img);
+                container.appendChild(card);
+            });
+        })
+        .catch(error => console.error('Error loading images:', error));
+</script>
+</body>
+</html>
