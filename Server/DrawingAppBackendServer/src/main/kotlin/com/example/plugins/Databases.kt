@@ -14,6 +14,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 fun Application.configureDatabases() {
     val database = Database.connect(
@@ -59,7 +60,7 @@ fun Application.configureDatabases() {
             call.respond(HttpStatusCode.OK)
         }
 
-        // Upload image
+        // Upload image with unique name and save with user ID
         post("/images") {
             try {
                 val userId = call.request.queryParameters["userId"]
@@ -68,19 +69,19 @@ fun Application.configureDatabases() {
                 call.application.log.debug("Received request to upload image for userId: $userId")
 
                 val multipart = call.receiveMultipart()
-                var fileName = ""
 
                 multipart.forEachPart { part ->
                     if (part is PartData.FileItem) {
-                        fileName = part.originalFileName ?: "uploaded_image.png"
-                        call.application.log.debug("Uploading file: $fileName for user: $userId")
+                        // Generate a unique file name using UUID
+                        val uniqueFileName = "${UUID.randomUUID()}_${part.originalFileName ?: "uploaded_image.png"}"
+                        call.application.log.debug("Uploading file: $uniqueFileName for user: $userId")
 
                         // Using ByteReadChannel for reading the file data
                         val fileBytes: ByteArray = withContext(Dispatchers.IO) {
                             part.provider().readRemaining().readBytes()
                         }
 
-                        call.application.log.debug("Read ${fileBytes.size} bytes for file: $fileName")
+                        call.application.log.debug("Read ${fileBytes.size} bytes for file: $uniqueFileName")
 
                         // Ensure the upload directory exists
                         val uploadDir = File("uploads")
@@ -90,14 +91,14 @@ fun Application.configureDatabases() {
                         }
 
                         // Define the file path and save the file
-                        val file = File(uploadDir, fileName)
+                        val file = File(uploadDir, uniqueFileName)
                         file.writeBytes(fileBytes)
 
                         call.application.log.debug("Saved file to path: ${file.absolutePath}")
 
-                        // Save image details to the database
-                        imageService.saveImage(fileName, file.path, userId)
-                        call.application.log.debug("Saved image details to the database for file: $fileName")
+                        // Save image details to the database with unique name
+                        imageService.saveImage(uniqueFileName, file.path, userId)
+                        call.application.log.debug("Saved image details to the database for file: $uniqueFileName")
                     }
                     part.dispose()
                 }
@@ -110,20 +111,21 @@ fun Application.configureDatabases() {
             }
         }
 
-        get("/images/file/{fileName}") {
-            val fileName = call.parameters["fileName"]
-            if (fileName == null) {
-                call.respond(HttpStatusCode.BadRequest, "Missing fileName parameter")
-                return@get
-            }
+        // Serve images for HTML
+        get("/images/all") {
+            val images = imageService.getAllImagesWithUserIds()
+            call.respond(images)
+        }
 
+        // Serve individual image file
+        get("/uploads/{fileName}") {
+            val fileName = call.parameters["fileName"] ?: return@get call.respond(HttpStatusCode.BadRequest)
             val file = File("uploads/$fileName")
             if (file.exists()) {
                 call.respondFile(file)
             } else {
-                call.respond(HttpStatusCode.NotFound, "Image not found")
+                call.respond(HttpStatusCode.NotFound)
             }
         }
-
     }
 }
