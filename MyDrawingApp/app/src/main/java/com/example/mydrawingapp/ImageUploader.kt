@@ -14,7 +14,7 @@ import java.io.IOException
 
 object ImageUploader {
     private const val BASE_URL = "http://10.0.2.2:8081/images"
-
+    val userEmail = UserSession.email
     suspend fun uploadImage(
         context: Context,
         bitmap: Bitmap,
@@ -31,11 +31,11 @@ object ImageUploader {
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file", "uploaded_image.png", byteArray.toRequestBody())
-                .addFormDataPart("userId", userId)
+                .addFormDataPart("userId", userEmail)
                 .build()
 
             val request = Request.Builder()
-                .url("$BASE_URL?userId=$userId")
+                .url("$BASE_URL?userId=$userEmail")
                 .post(requestBody)
                 .build()
 

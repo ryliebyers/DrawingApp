@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import com.example.drawingapp.ui.screens.LoginScreen
 import com.example.mydrawingapp.DrawingScreen
 import com.example.drawingapp.viewmodel.DrawingViewModel
+import com.example.mydrawingapp.AllDrawingsScreen
 import com.example.mydrawingapp.SigninScreen
 import com.example.mydrawingapp.SplashScreen
 
@@ -31,6 +32,9 @@ fun NavGraph(navController: NavHostController, viewModel: DrawingViewModel) {
         composable("create_drawing") {
             DrawingScreen(navController = navController, drawingId = -1, viewModel = viewModel)
         }
+        composable("all_drawings") {
+            AllDrawingsScreen(navController = navController,viewModel = viewModel)
+        }
         composable("edit_drawing/{drawingId}") { backStackEntry ->
             val drawingId = backStackEntry.arguments?.getString("drawingId")?.toInt() ?: -1
             DrawingScreen(navController = navController, drawingId = drawingId, viewModel = viewModel)
@@ -40,8 +44,12 @@ fun NavGraph(navController: NavHostController, viewModel: DrawingViewModel) {
             val drawingId = backStackEntry.arguments?.getString("drawingId")?.toInt() ?: -1
             UploadImageScreen(viewModel = viewModel, drawingId = drawingId)
         }
+
+
     }
 }
+
+
 
 
 

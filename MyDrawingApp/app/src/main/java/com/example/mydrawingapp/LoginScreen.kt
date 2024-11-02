@@ -44,6 +44,17 @@ fun LoginScreen(navController: NavController, viewModel: DrawingViewModel) {
             Text("Create New Drawing", color = Color(0xFFFFD700)) // Gold text
         }
 
+        // Button For community Drawings
+        Button(
+            onClick = {
+                navController.navigate("all_drawings")
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black), // Black background
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Community Drawings", color = Color(0xFFFFD700)) // Gold text
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Title text for editing existing drawings

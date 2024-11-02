@@ -19,10 +19,12 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.google.firebase.firestore.FirebaseFirestore
-
+object UserSession {
+    var email: String = ""
+}
 @Composable
 fun SigninScreen(navController: NavController, viewModel: DrawingViewModel) {
-    var email by remember { mutableStateOf("") }
+     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
     val firebaseAuth = FirebaseAuth.getInstance()
@@ -47,7 +49,9 @@ fun SigninScreen(navController: NavController, viewModel: DrawingViewModel) {
         // Email Input Field
         TextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = { email = it
+                UserSession.email = it},
+
             label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()

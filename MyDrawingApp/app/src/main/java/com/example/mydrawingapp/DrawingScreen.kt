@@ -51,6 +51,8 @@ import com.github.skydoves.colorpicker.compose.ColorPickerController
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import kotlin.math.sqrt
 
+
+
 // Needed to convert ImageBitmap to Android Bitmap
 data class DrawnPoint(val x: Float, val y: Float, val color: Color, val size: Float)
 // Marble data class
@@ -66,6 +68,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val coroutineScope = rememberCoroutineScope()
     val THRESHOLD_DISTANCE = 5f
     val linesPath = remember { mutableStateListOf<Pair<DrawnPoint, DrawnPoint>>() } // Store lines
+    val userEmail: String = UserSession.email
 
     // State to hold pen properties
     val pen = remember { Pen() }
@@ -656,7 +659,8 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
                             filePath = File(context.filesDir, "$drawingName.png").path
                         }
 
-                        if (filePath != null && drawingName.isNotEmpty()) {
+
+                        if (filePath != null && drawingName.isNotEmpty() ) {
                             saveDrawing(context, bitmap, drawingName, filePath!!, viewModel, navController, drawingId)
                         } else {
                             withContext(Dispatchers.Main) {

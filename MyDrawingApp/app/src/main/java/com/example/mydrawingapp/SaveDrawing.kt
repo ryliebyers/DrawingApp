@@ -21,9 +21,12 @@ suspend fun saveDrawing(
     filePath: String?,
     viewModel: DrawingViewModel,
     navController: NavController,
-    drawingId: Int?
+    drawingId: Int?,
+//    email: String?
 ) {
     try {
+        val userEmail: String = UserSession.email
+
         // Debugging... Log values before proceeding to save
         println("DEBUG: filePath = $filePath, name = $name, bitmap = $bitmap, drawingId = $drawingId")
 

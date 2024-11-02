@@ -58,6 +58,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.recyclerview)
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
     testImplementation("io.mockk:mockk:1.12.0")
@@ -148,6 +149,8 @@ dependencies {
 //    implementation(libs.firebase.firestore)
 //    implementation(libs.firebase.auth.ktx)
 
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }
 
 kapt {

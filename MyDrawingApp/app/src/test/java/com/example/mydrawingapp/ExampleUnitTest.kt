@@ -177,6 +177,7 @@ class DrawingViewModelTest {
         viewModel = DrawingViewModel(mockRepository)
     }
 
+    val StringEmail = "gmail"
     // 1. Insert a drawing test
     @Test
     fun `insert drawing test`() = runTest {

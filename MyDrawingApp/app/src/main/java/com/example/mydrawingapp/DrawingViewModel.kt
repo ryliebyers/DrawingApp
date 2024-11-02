@@ -15,6 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import android.graphics.Paint
+import android.provider.ContactsContract.CommonDataKinds.Email
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -27,6 +30,8 @@ import java.io.File
 class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() {
 
     val allDrawings: Flow<List<Drawing>> = repository.allDrawings
+
+
 
 
     fun insertDrawing(drawing: Drawing) {
@@ -45,6 +50,9 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
         repository.getDrawingById(id)
     }
 
+//    suspend fun getDrawingsByEmail(email: String): LiveData<List<Drawing>> {
+//        return repository.getDrawingsByEmail(email).asLiveData()
+//    }
 
     // Renders a Drawing object into a Bitmap by loading the image from its file path
     fun getCurrentDrawing(drawing: Drawing): Bitmap {
