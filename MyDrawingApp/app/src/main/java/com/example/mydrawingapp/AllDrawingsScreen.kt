@@ -1,5 +1,7 @@
 package com.example.mydrawingapp
 
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,11 +28,76 @@ import coil.compose.rememberImagePainter
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.flow.Flow
+
+//@Composable
+//fun AllDrawingsScreen(navController: NavController, viewModel: DrawingViewModel) {
+//    val _allDrawings by viewModel.serverDrawings.collectAsState(initial = emptyList())
+//    val serverDrawingsFlow: Flow<List<Drawing>> = viewModel.serverDrawings
+//    @Composable
+//    fun WebViewScreen() {
+//        val context = LocalContext.current
+//
+//        AndroidView(
+//            factory = { context ->
+//                WebView(context).apply {
+//                    webViewClient = WebViewClient() // Handle loading URLs
+//                    settings.javaScriptEnabled = true // Enable JavaScript if needed
+//                    loadUrl("http://0.0.0.0:8081/static/images.html") // Load your URL
+//                }
+//            },
+//            update = { webView ->
+//                webView.loadUrl("http://0.0.0.0:8081/static/images.html") // Reload URL if needed
+//            }
+//        )
+//    }
+//
+//    Column(modifier = Modifier.fillMaxSize()) {
+//        // Button to navigate back to login
+//        Button(
+//            onClick = {
+//                navController.navigate("login") {
+//                    popUpTo("splash") { inclusive = true }
+//                }
+//            },
+//            modifier = Modifier.padding(16.dp)
+//        ) {
+//            Text(text = "Back")
+//        }
+//
+//        LazyColumn {
+//            items(_allDrawings) { drawing ->
+//                DrawingItem(drawing = drawing)
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun DrawingItem(drawing: Drawing) {
+//    val userEmail: String = UserSession.email
+//
+//    Column(modifier = Modifier.padding(8.dp)) {
+//        Text(text = userEmail, style = MaterialTheme.typography.body1)
+//        Text(text = "Drawing Name: ${drawing.name}", style = MaterialTheme.typography.body2)
+//        Image(
+//            painter = rememberAsyncImagePainter(drawing.filePath),
+//            contentDescription = null,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(200.dp)
+//                .clip(RoundedCornerShape(8.dp))
+//                .background(Color.Gray)
+//        )
+//    }
+//}
 
 @Composable
 fun AllDrawingsScreen(navController: NavController, viewModel: DrawingViewModel) {
-    val allDrawings by viewModel.allDrawings.collectAsState(initial = emptyList())
-
+    // Collect drawings from the viewModel
+    val allDrawings by viewModel.serverDrawings.collectAsState(initial = emptyList())
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Button to navigate back to login
@@ -45,12 +112,34 @@ fun AllDrawingsScreen(navController: NavController, viewModel: DrawingViewModel)
             Text(text = "Back")
         }
 
+        // Display the WebView for the server URL
+        WebViewScreen()
+
+        // Display the list of drawings
         LazyColumn {
             items(allDrawings) { drawing ->
                 DrawingItem(drawing = drawing)
             }
         }
     }
+}
+
+@Composable
+fun WebViewScreen() {
+    val context = LocalContext.current
+
+    AndroidView(
+        factory = { context ->
+            WebView(context).apply {
+                webViewClient = WebViewClient() // Handle loading URLs
+                settings.javaScriptEnabled = true // Enable JavaScript if needed
+                loadUrl("http://10.0.2.2:8081/static/images.html") // Load your URL
+            }
+        },
+        update = { webView ->
+            webView.loadUrl("http://10.0.2.2:8081/static/images.html") // Reload URL if needed
+        }
+    )
 }
 
 @Composable
@@ -71,5 +160,4 @@ fun DrawingItem(drawing: Drawing) {
         )
     }
 }
-
 

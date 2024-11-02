@@ -151,6 +151,10 @@ dependencies {
 
 
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0") // Retrofit library
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Gson converter
+    implementation("com.squareup.okhttp3:okhttp:4.9.3") // OkHttp library (optional, but good to include)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 }
 
 kapt {
