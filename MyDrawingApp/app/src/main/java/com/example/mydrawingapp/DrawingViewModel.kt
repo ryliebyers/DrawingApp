@@ -23,8 +23,11 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.mydrawingapp.RetrofitInstance
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,13 +40,16 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
 
     val allDrawings: Flow<List<Drawing>> = repository.allDrawings
 
+    private val currentUserEmail: String = FirebaseAuth.getInstance().currentUser?.email.toString()
+
+    // Only retrieve drawings with email matching current user's email
+    val userDrawings: Flow<List<Drawing>> = repository.getDrawingsByEmail(currentUserEmail)
+
 
 
     init {
         fetchDrawings()
     }
-
-
 
 
     private fun fetchDrawings() {
@@ -65,20 +71,13 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     private suspend fun fetchDrawingsFromServer(): List<Drawing> {
         return withContext(Dispatchers.IO) {
             try {
-                val drawings = RetrofitInstance.api.getDrawings()
-                Log.d("DrawingViewModel", "Fetched drawings: $drawings")
-                drawings // Return the list of drawings
+               RetrofitInstance.api.getDrawings()
             } catch (e: Exception) {
                 Log.e("DrawingViewModel", "Error fetching drawings: ${e.message}")
                 emptyList() // Return an empty list on error
             }
         }
     }
-
-
-
-
-
 
 
 
@@ -98,7 +97,6 @@ class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() 
     suspend fun getDrawingById(id: Int): Drawing? = withContext(Dispatchers.IO) {
         repository.getDrawingById(id)
     }
-
 
 
     // Renders a Drawing object into a Bitmap by loading the image from its file path

@@ -22,10 +22,11 @@ class DrawingRepository(private val drawingDao: DrawingDao) {
         return drawingDao.getDrawingById(id)
     }
 
+    fun getDrawingsByEmail(currentUserEmail: String): Flow<List<Drawing>> {
+        return drawingDao.getDrawingsByEmail(currentUserEmail)
+    }
 
-//    suspend fun getDrawingsByEmail(email: String): Flow<List<Drawing>> {
-//        return drawingDao.getDrawingsByEmail(email)
-//    }
+
 }
 
 

@@ -181,7 +181,7 @@ class DrawingViewModelTest {
     // 1. Insert a drawing test
     @Test
     fun `insert drawing test`() = runTest {
-        val drawing = Drawing(name = "TestDrawing", filePath = "test/path")
+        val drawing = Drawing(name = "TestDrawing", filePath = "test/path", email = "test@gmail.com")
 
         // Call the insert method
         viewModel.insertDrawing(drawing)
@@ -194,7 +194,7 @@ class DrawingViewModelTest {
     // 2. Retrieve a drawing by ID test
     @Test
     fun `get drawing by id test`() = runTest {
-        val drawing = Drawing(id = 1, name = "TestDrawing", filePath = "test/path")
+        val drawing = Drawing(id = 1, name = "TestDrawing", filePath = "test/path", email = "test@gmail.com")
 
         // Mock the repository's response
         coEvery { mockRepository.getDrawingById(1) } returns drawing
@@ -223,7 +223,7 @@ class DrawingViewModelTest {
     // 4. Update a drawing test
     @Test
     fun `update drawing test`() = runTest {
-        val drawing = Drawing(id = 1, name = "OldName", filePath = "test/path")
+        val drawing = Drawing(id = 1, name = "OldName", filePath = "test/path", email = "test@gmail.com")
 
         // Call the update method
         viewModel.updateDrawing(drawing)
@@ -235,7 +235,7 @@ class DrawingViewModelTest {
     // 5. Ensure the repository's insert method is called only once
     @Test
     fun `insert drawing is called only once`() = runTest {
-        val drawing = Drawing(name = "TestDrawing", filePath = "test/path")
+        val drawing = Drawing(name = "TestDrawing", filePath = "test/path", email = "test@gmail.com")
 
         // Insert the drawing
         viewModel.insertDrawing(drawing)
@@ -248,7 +248,7 @@ class DrawingViewModelTest {
     // 6. Ensure that the update method is not called for non-existent drawing
     @Test
     fun `update non-existent drawing should not call repository`() = runTest {
-        val drawing = Drawing(id = 999, name = "NonExistent", filePath = "fake/path")
+        val drawing = Drawing(id = 999, name = "NonExistent", filePath = "fake/path", email = "test@gmail.com")
 
         // Simulate an update for a non-existent drawing
         coEvery { mockRepository.getDrawingById(999) } returns null

@@ -7,7 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 
-@Database(entities = [Drawing::class], version = 1, exportSchema = false)
+@Database(entities = [Drawing::class], version = 2, exportSchema = false) // Increment version here
 abstract class DrawingDatabase : RoomDatabase() {
 
     abstract fun drawingDao(): DrawingDao
@@ -22,12 +22,13 @@ abstract class DrawingDatabase : RoomDatabase() {
                     context.applicationContext,
                     DrawingDatabase::class.java,
                     "drawing_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // This will rebuild the database on schema changes, clearing data
+                    .build()
                 INSTANCE = instance
                 instance
             }
         }
     }
 }
-
 

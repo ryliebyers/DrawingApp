@@ -24,11 +24,11 @@ interface DrawingDao {
     @Query("SELECT * FROM drawings WHERE id = :id")
     fun getDrawingById(id: Int): Drawing?
 
-//    @Query("SELECT * FROM drawings WHERE email = :email ORDER BY id DESC")
-//    fun getDrawingsByEmail(email: String): Flow<List<Drawing>>
+
+    @Query("SELECT * FROM drawings WHERE email = :email ORDER BY id DESC")
+    fun getDrawingsByEmail(email: String): Flow<List<Drawing>>
 
 }
-
 
 
 

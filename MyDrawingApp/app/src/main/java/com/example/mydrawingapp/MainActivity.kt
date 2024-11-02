@@ -22,31 +22,25 @@ class MainActivity : ComponentActivity() {
         DrawingViewModelFactory((application as DrawingApplication).repository)
     }
 
-    // Initialize FirebaseAuth
-    private lateinit var firebaseAuth: FirebaseAuth
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        firebaseAuth = FirebaseAuth.getInstance()
         setContent {
             DrawingAppTheme {
-                val navController = rememberNavController()
                 Surface {
-                    NavGraph(navController = navController, viewModel = drawingViewModel)
+                    val navController = rememberNavController()
+                    AuthNavGraph(navController = navController, viewModel = drawingViewModel)
                 }
             }
         }
     }
 }
 
-
-
 @Composable
 fun AuthNavGraph(navController: NavController, viewModel: DrawingViewModel) {
     val firebaseAuth = remember { FirebaseAuth.getInstance() }
-    val currentUser: FirebaseUser? = firebaseAuth.currentUser
+    val currentUser = firebaseAuth.currentUser
 
-    // Redirect to login screen if user is not logged in
+    // Redirect to login if not authenticated
     LaunchedEffect(currentUser) {
         if (currentUser == null) {
             navController.navigate("login") {
@@ -55,7 +49,6 @@ fun AuthNavGraph(navController: NavController, viewModel: DrawingViewModel) {
         }
     }
 
-    // The main navigation graph for your app
+    // Load the main navigation graph for authenticated users
     NavGraph(navController = navController as NavHostController, viewModel = viewModel)
 }
-

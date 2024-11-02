@@ -24,7 +24,7 @@ object UserSession {
 }
 @Composable
 fun SigninScreen(navController: NavController, viewModel: DrawingViewModel) {
-     var email by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
     val firebaseAuth = FirebaseAuth.getInstance()

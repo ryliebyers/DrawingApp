@@ -24,8 +24,8 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: DrawingViewModel) {
-    // Collect drawings from the ViewModel
-    val drawings by viewModel.allDrawings.collectAsState(initial = emptyList())
+    // Collect drawings of current user from the ViewModel
+    val drawings by viewModel.userDrawings.collectAsState(initial = emptyList())
 
     Column(
         modifier = Modifier
@@ -60,7 +60,7 @@ fun LoginScreen(navController: NavController, viewModel: DrawingViewModel) {
         // Title text for editing existing drawings
         if (drawings.isNotEmpty()) {
             Text(
-                "Edit Existing Drawing",
+                "Your Drawing",
                 color = Color.Gray, // Gray color
                 modifier = Modifier.padding(8.dp)
             )

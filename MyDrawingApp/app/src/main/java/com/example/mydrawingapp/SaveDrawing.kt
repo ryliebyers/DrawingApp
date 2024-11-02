@@ -8,6 +8,7 @@ import java.io.FileOutputStream
 import android.widget.Toast
 import androidx.navigation.NavController
 import com.example.drawingapp.viewmodel.DrawingViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,9 +23,10 @@ suspend fun saveDrawing(
     viewModel: DrawingViewModel,
     navController: NavController,
     drawingId: Int?,
-//    email: String?
+    email: String?
 ) {
     try {
+        //val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
         val userEmail: String = UserSession.email
 
         // Debugging... Log values before proceeding to save
@@ -65,10 +67,10 @@ suspend fun saveDrawing(
         // Check if the drawing is new or being updated
         if (drawingId == null || drawingId == -1) {
             // Insert a new drawing
-            viewModel.insertDrawing(Drawing(name = name, filePath = filePath))
+            viewModel.insertDrawing(Drawing(name = name, filePath = filePath, email = userEmail))
         } else {
             // Update the existing drawing
-            viewModel.updateDrawing(Drawing(id = drawingId, name = name, filePath = filePath))
+            viewModel.updateDrawing(Drawing(id = drawingId, name = name, filePath = filePath, email = userEmail))
         }
 
         // Show success message

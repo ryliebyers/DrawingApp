@@ -661,7 +661,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
 
                         if (filePath != null && drawingName.isNotEmpty() ) {
-                            saveDrawing(context, bitmap, drawingName, filePath!!, viewModel, navController, drawingId)
+                            saveDrawing(context, bitmap, drawingName, filePath!!, viewModel, navController, drawingId, userEmail)
                         } else {
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, "Missing file path or drawing name", Toast.LENGTH_SHORT).show()
