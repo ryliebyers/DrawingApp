@@ -27,7 +27,8 @@ import com.example.drawingapp.viewmodel.DrawingViewModel
 import coil.compose.rememberImagePainter
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.firebase.auth.FirebaseAuth
@@ -108,9 +109,12 @@ fun AllDrawingsScreen(navController: NavController, viewModel: DrawingViewModel)
                     popUpTo("splash") { inclusive = true }
                 }
             },
-            modifier = Modifier.padding(16.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black), // Black background
+            modifier = Modifier
+                .fillMaxWidth() // Make the button fill the available width
+                .padding(16.dp) // Add padding around the button
         ) {
-            Text(text = "Back")
+            Text(text = "Back", color = Color(0xFFFFD700)) // Gold text
         }
 
         // Display the WebView for the server URL
