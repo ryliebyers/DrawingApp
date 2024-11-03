@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.core.content.FileProvider
 import com.github.skydoves.colorpicker.compose.ColorPickerController
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.sqrt
 
 
@@ -68,7 +69,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
     val coroutineScope = rememberCoroutineScope()
     val THRESHOLD_DISTANCE = 5f
     val linesPath = remember { mutableStateListOf<Pair<DrawnPoint, DrawnPoint>>() } // Store lines
-    val userEmail: String = UserSession.email
+    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
 
     // State to hold pen properties
     val pen = remember { Pen() }
@@ -661,7 +662,7 @@ fun DrawingScreen(navController: NavController, drawingId: Int?, viewModel: Draw
 
 
                         if (filePath != null && drawingName.isNotEmpty() ) {
-                            saveDrawing(context, bitmap, drawingName, filePath!!, viewModel, navController, drawingId, userEmail)
+                            saveDrawing(context, bitmap, drawingName, filePath!!, viewModel, navController, drawingId, currentUserEmail)
                         } else {
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, "Missing file path or drawing name", Toast.LENGTH_SHORT).show()

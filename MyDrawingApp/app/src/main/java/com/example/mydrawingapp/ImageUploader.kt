@@ -5,6 +5,7 @@ package com.example.mydrawingapp
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
@@ -14,7 +15,8 @@ import java.io.IOException
 
 object ImageUploader {
     private const val BASE_URL = "http://10.0.2.2:8081/images"
-    val userEmail = UserSession.email
+    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
+
     suspend fun uploadImage(
         context: Context,
         bitmap: Bitmap,
@@ -31,11 +33,11 @@ object ImageUploader {
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file", "uploaded_image.png", byteArray.toRequestBody())
-                .addFormDataPart("userId", userEmail)
+                .addFormDataPart("userId", currentUserEmail)
                 .build()
 
             val request = Request.Builder()
-                .url("$BASE_URL?userId=$userEmail")
+                .url("$BASE_URL?userId=$currentUserEmail")
                 .post(requestBody)
                 .build()
 

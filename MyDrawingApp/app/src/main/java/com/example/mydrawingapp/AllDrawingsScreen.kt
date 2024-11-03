@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 
 //@Composable
@@ -144,10 +145,10 @@ fun WebViewScreen() {
 
 @Composable
 fun DrawingItem(drawing: Drawing) {
-    val userEmail: String = UserSession.email
+    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
 
     Column(modifier = Modifier.padding(8.dp)) {
-        Text(text = userEmail, style = MaterialTheme.typography.body1)
+        Text(text = currentUserEmail, style = MaterialTheme.typography.body1)
         Text(text = "Drawing Name: ${drawing.name}", style = MaterialTheme.typography.body2)
         Image(
             painter = rememberAsyncImagePainter(drawing.filePath),

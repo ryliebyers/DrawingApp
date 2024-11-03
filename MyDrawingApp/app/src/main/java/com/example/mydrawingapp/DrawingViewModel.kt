@@ -38,12 +38,18 @@ import java.io.File
 class DrawingViewModel(private val repository: DrawingRepository) : ViewModel() {
     val serverDrawings = MutableStateFlow<List<Drawing>>(emptyList())
 
-    val allDrawings: Flow<List<Drawing>> = repository.allDrawings
+//    val allDrawings: Flow<List<Drawing>> = repository.allDrawings
 
-    private val currentUserEmail: String = FirebaseAuth.getInstance().currentUser?.email.toString()
+    private val currentUserEmail: String
+        get() = FirebaseAuth.getInstance().currentUser?.email ?: ""
 
-    // Only retrieve drawings with email matching current user's email
-    val userDrawings: Flow<List<Drawing>> = repository.getDrawingsByEmail(currentUserEmail)
+
+    // Flow to observe only the current user's drawings
+    val userDrawings: Flow<List<Drawing>> = repository.allDrawings.map { drawings ->
+        drawings.filter { it.email == currentUserEmail }
+    }
+
+
 
 
 

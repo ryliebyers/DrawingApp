@@ -60,7 +60,7 @@ fun LoginScreen(navController: NavController, viewModel: DrawingViewModel) {
         // Title text for editing existing drawings
         if (drawings.isNotEmpty()) {
             Text(
-                "Your Drawing",
+                "Your Drawings",
                 color = Color.Gray, // Gray color
                 modifier = Modifier.padding(8.dp)
             )

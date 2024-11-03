@@ -26,11 +26,16 @@ suspend fun saveDrawing(
     email: String?
 ) {
     try {
-        //val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
-        val userEmail: String = UserSession.email
+//        val email = FirebaseAuth.getInstance().currentUser?.email.toString()
+        if (email == null) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Error: No user logged in", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
 
         // Debugging... Log values before proceeding to save
-        println("DEBUG: filePath = $filePath, name = $name, bitmap = $bitmap, drawingId = $drawingId")
+        println("DEBUG: filePath = $filePath, name = $name, bitmap = $bitmap, id = $drawingId")
 
         // Ensure that none of the critical values are null
         if (filePath == null) {
@@ -67,10 +72,10 @@ suspend fun saveDrawing(
         // Check if the drawing is new or being updated
         if (drawingId == null || drawingId == -1) {
             // Insert a new drawing
-            viewModel.insertDrawing(Drawing(name = name, filePath = filePath, email = userEmail))
+            viewModel.insertDrawing(Drawing(name = name, filePath = filePath, email = email))
         } else {
             // Update the existing drawing
-            viewModel.updateDrawing(Drawing(id = drawingId, name = name, filePath = filePath, email = userEmail))
+            viewModel.updateDrawing(Drawing(id = drawingId, name = name, filePath = filePath, email = email))
         }
 
         // Show success message

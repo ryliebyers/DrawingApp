@@ -19,9 +19,9 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.drawingapp.viewmodel.DrawingViewModel
 import com.google.firebase.firestore.FirebaseFirestore
-object UserSession {
-    var email: String = ""
-}
+//object UserSession {
+//    var email: String = ""
+//}
 @Composable
 fun SigninScreen(navController: NavController, viewModel: DrawingViewModel) {
     var email by remember { mutableStateOf("") }
@@ -49,8 +49,7 @@ fun SigninScreen(navController: NavController, viewModel: DrawingViewModel) {
         // Email Input Field
         TextField(
             value = email,
-            onValueChange = { email = it
-                UserSession.email = it},
+            onValueChange = { email = it },
 
             label = { Text("Email") },
             modifier = Modifier
@@ -117,10 +116,20 @@ private fun signInUser(
     firebaseAuth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                navController.navigate("create_drawing") {
-                    popUpTo("login") { inclusive = true }
+                // Ensure FirebaseAuth reflects the current user after login
+                firebaseAuth.currentUser?.let { currentUser ->
+                    val currentUserEmail = currentUser.email ?: ""
+
+                    // Optionally log the current user's email to verify
+                    println("Current logged-in user email: $currentUserEmail")
+
+                    // Navigate to the main screen or drawing screen
+                    navController.navigate("create_drawing") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
             } else {
+                // Handle login failure
                 Toast.makeText(
                     context,
                     "Authentication failed: ${task.exception?.localizedMessage ?: "Unknown error"}",
@@ -130,6 +139,7 @@ private fun signInUser(
         }
 }
 
+// Function to handle user registration
 private fun registerUser(
     email: String,
     password: String,
@@ -140,18 +150,19 @@ private fun registerUser(
     firebaseAuth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val userId = firebaseAuth.currentUser?.uid
+                val currentUser = firebaseAuth.currentUser
+                currentUser?.let { user ->
+                    val userId = user.uid
+                    val currentUserEmail = user.email ?: "" // Update UserSession with current user
 
-                if (userId != null) {
                     // Add user details to Firestore
-                    val user = hashMapOf(
+                    val userMap = hashMapOf(
                         "email" to email,
                         "createdAt" to System.currentTimeMillis()
                     )
-
                     FirebaseFirestore.getInstance().collection("users")
                         .document(userId)
-                        .set(user)
+                        .set(userMap)
                         .addOnSuccessListener {
                             navController.navigate("create_drawing") {
                                 popUpTo("login") { inclusive = true }
@@ -166,6 +177,7 @@ private fun registerUser(
                         }
                 }
             } else {
+                // Handle registration failure
                 Toast.makeText(
                     context,
                     "Registration failed: ${task.exception?.localizedMessage ?: "Unknown error"}",
